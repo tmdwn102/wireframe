@@ -129,60 +129,48 @@
     .panel { display: none; animation: up 0.25s ease; }
     .panel.visible {
       display: flex;
-      justify-content: center;
-    }
-    #panel-5am.visible {
-      display: flex;
-      justify-content: center;
+      align-items: flex-start;
+      gap: 0;
+      overflow-x: auto;
+      padding-bottom: 36px;
     }
     @keyframes up {
       from { opacity:0; transform:translateY(8px); }
       to   { opacity:1; transform:translateY(0); }
     }
 
-    .panel-meta {
-      grid-column: 1 / -1;
-      padding: 20px 0 14px;
+    /* individual card within a panel */
+    .panel-card {
       display: flex;
-      justify-content: space-between;
+      flex-direction: column;
       align-items: center;
+      min-width: 240px;
+      max-width: 300px;
+      padding: 20px 24px 0 0;
+      flex-shrink: 0;
     }
-    .panel-time-label {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 40px;
-    }
-    .panel-time-label .ko {
-      font-family: 'Noto Sans KR', sans-serif;
-      font-size: 14px;
-      font-weight: 300;
-      vertical-align: middle;
-    }
-    .panel-name {
-      font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      color: #888;
-      letter-spacing: 0.1em;
-    }
+    .panel-card:last-child { padding-right: 0; }
 
-    /* clickable image in panel */
-    .panel-img {
-      grid-column: 1;
+    /* clickable image card */
+    .panel-card.clickable { cursor: pointer; }
+    .panel-card.clickable:hover .panel-img-center { opacity: 0.75; }
+    .panel-card.used .panel-img-center { opacity: 0.3; pointer-events: none; cursor: default; }
+
+    .panel-img-center {
       width: 100%;
-      height: 200px;
+      height: 180px;
       background: #ebebeb;
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
-      cursor: pointer;
       position: relative;
       transition: opacity 0.2s;
+      margin-bottom: 14px;
     }
-    .panel-img:hover { opacity: 0.75; }
-    .panel-img.used { opacity: 0.3; cursor: default; pointer-events: none; }
-    .panel-img img { width:100%; height:100%; object-fit:cover; }
-    .panel-img span { font-family:'DM Mono',monospace; font-size:10px; color:#bbb; letter-spacing:0.1em; }
-    .panel-img .click-hint {
+    .panel-img-center img { width:100%; height:100%; object-fit:cover; }
+    .panel-img-center span { font-family:'DM Mono',monospace; font-size:10px; color:#bbb; letter-spacing:0.1em; }
+    .click-hint {
       position: absolute;
       bottom: 8px;
       right: 8px;
@@ -194,47 +182,22 @@
       padding: 2px 6px;
     }
 
-    .panel-text { grid-column: 2 / -1; }
-    .panel-quote {
-      font-family: 'Noto Sans KR', sans-serif;
-      font-size: 12px;
-      line-height: 1.85;
-      margin-bottom: 16px;
-      font-weight: 300;
+    /* text-only card (no image) */
+    .panel-card.text-only {
+      justify-content: flex-start;
+      padding-top: 20px;
     }
-    #panel-5am.visible {
-      display: flex;
-      justify-content: center;
+    .panel-card.text-only .panel-quote-center {
+      text-align: left;
     }
-    .panel-5am-inner {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      cursor: pointer;
-      max-width: 340px;
-      padding: 20px 0 36px;
-    }
-    .panel-5am-inner:hover .panel-img-center { opacity: 0.75; }
-    .panel-5am-inner.used .panel-img-center { opacity: 0.3; pointer-events: none; }
-    .panel-img-center {
-      width: 280px;
-      height: 200px;
-      background: #ebebeb;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      position: relative;
-      transition: opacity 0.2s;
-      margin-bottom: 16px;
-    }
-    .panel-img-center img { width:100%; height:100%; object-fit:cover; }
-    .panel-img-center span { font-family:'DM Mono',monospace; font-size:10px; color:#bbb; letter-spacing:0.1em; }
+
     .panel-source {
       font-family: 'DM Mono', monospace;
       font-size: 9px;
       color: #aaa;
       letter-spacing: 0.08em;
+      margin-bottom: 10px;
+      align-self: flex-start;
     }
     .panel-quote-center {
       font-family: 'Noto Sans KR', sans-serif;
@@ -243,6 +206,79 @@
       line-height: 1.85;
       color: #222;
       text-align: center;
+    }
+    .panel-reason {
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 11px;
+      font-weight: 300;
+      line-height: 1.8;
+      color: #999;
+      text-align: center;
+      margin-top: 10px;
+      font-style: italic;
+    }
+    .panel-card.text-only .panel-reason {
+      text-align: left;
+    }
+    .audio-reason {
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 11px;
+      font-weight: 300;
+      line-height: 1.8;
+      color: #999;
+      font-style: italic;
+      margin-top: 10px;
+    }
+
+    /* divider between cards */
+    .panel-divider {
+      width: 1px;
+      background: #e0e0e0;
+      align-self: stretch;
+      margin: 20px 24px 0 0;
+      flex-shrink: 0;
+    }
+
+    /* ── AUDIO CARD ── */
+    .audio-card {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      min-width: 200px;
+      max-width: 240px;
+      padding: 20px 0 0 0;
+      flex-shrink: 0;
+    }
+    .audio-play-btn {
+      width: 44px;
+      height: 44px;
+      border: 1px solid #111;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      margin-bottom: 14px;
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+    .audio-play-btn:hover { background: #111; }
+    .audio-play-btn:hover svg path { fill: #fff; }
+    .audio-play-btn svg { width: 16px; height: 16px; }
+    .audio-play-btn svg path { fill: #111; transition: fill 0.15s; }
+    .audio-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      color: #aaa;
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+    }
+    .audio-quote {
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 12px;
+      font-weight: 300;
+      line-height: 1.85;
+      color: #222;
     }
 
     /* ── LOG SECTION ── */
@@ -292,6 +328,74 @@
       color: #aaa;
       letter-spacing: 0.06em;
     }
+
+  /* ── ED POPUP ── */
+  .ed-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+  }
+  .ed-overlay.visible {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .ed-modal {
+    background: #fff;
+    max-width: 480px;
+    width: 90vw;
+    padding: 48px 40px 40px;
+    position: relative;
+    transform: translateY(12px);
+    transition: transform 0.5s ease;
+  }
+  .ed-overlay.visible .ed-modal {
+    transform: translateY(0);
+  }
+  .ed-modal-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    letter-spacing: 2px;
+    line-height: 1;
+    margin-bottom: 28px;
+  }
+  .ed-modal-body {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 13px;
+    font-weight: 300;
+    line-height: 2;
+    color: #222;
+  }
+  .ed-modal-body p { margin-bottom: 16px; }
+  .ed-modal-body p:last-child { margin-bottom: 0; }
+  .ed-modal-year {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: #aaa;
+    letter-spacing: 0.1em;
+    margin-top: 32px;
+    display: block;
+  }
+  .ed-close {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: #aaa;
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    background: none;
+    border: none;
+    padding: 4px;
+  }
+  .ed-close:hover { color: #111; }
   </style>
 </head>
 <body>
@@ -357,58 +461,107 @@
 <!-- PANELS -->
 <div class="panel-area">
 
+  <!-- 5AM: 달빛 -->
+  <div class="panel" id="panel-5am">
+    <div class="panel-card clickable" onclick="placeImage('5am', this)">
+      <div class="panel-img-center">
+        <!-- <img src="5am.jpg" alt="달빛"> -->
+        <span>이미지</span>
+        <div class="click-hint">클릭하면 시계에 배치</div>
+      </div>
+      <p class="panel-quote-center">이유 없이 깼다가 보고 다시 잠드는.</p>
+      <p class="panel-reason">찾으려 하지 않았는데 거기 있었던 것.</p>
+    </div>
+  </div>
+
+  <!-- 10AM: 유튜브 댓글 세트 + 이하나 댓글 -->
   <div class="panel" id="panel-10am">
-    <div class="panel-5am-inner" onclick="placeImage('10am', this)">
+    <div class="panel-card clickable" onclick="placeImage('10am', this)">
       <div class="panel-img-center">
         <!-- <img src="10am.jpg" alt=""> -->
         <span>이미지</span>
         <div class="click-hint">클릭하면 시계에 배치</div>
       </div>
-      <p class="panel-quote-center">나쁜 짓을 한 게 아니라 나쁜 일이 벌어진 거니까.</p>
+      <p class="panel-source">유튜브 댓글 / 아이와 장식장 영상</p>
+      <p class="panel-quote-center">나쁜 짓을 한 게 아니라<br>나쁜 일이 벌어진 거니까.</p>
+      <p class="panel-reason">같은 장면을 다른 언어로 보는 순간.</p>
+    </div>
+    <div class="panel-divider"></div>
+    <div class="panel-card text-only">
+      <p class="panel-source">유튜브 댓글</p>
+      <p class="panel-quote-center">한국: 그냥 다 때려부시지 그래!!!</p>
+      <p class="panel-reason">진지함 바로 옆에 있어야 더 선명해지는 것.</p>
+    </div>
+    <div class="panel-divider"></div>
+    <div class="panel-card text-only">
+      <p class="panel-source">유튜브 댓글</p>
+      <p class="panel-quote-center">이하나: ㅋㅋ 좀 저 나이에 저러면 한심해보이긴함…<br><br>ㄴ 우리 모두 누구나 잘 모르는 영역이 있는 법이져… 예를 들어 하나 님이 띄어쓰기를 못하는 것처럼.</p>
+      <p class="panel-reason">반격이 주장이 아니라 증명으로 왔을 때.</p>
     </div>
   </div>
 
+  <!-- 1PM: 썩은 핑크의 법칙 -->
   <div class="panel" id="panel-1pm">
-    <div class="panel-5am-inner" onclick="placeImage('1pm', this)">
+    <div class="panel-card clickable" onclick="placeImage('1pm', this)">
       <div class="panel-img-center">
         <!-- <img src="1pm.jpg" alt=""> -->
         <span>이미지</span>
         <div class="click-hint">클릭하면 시계에 배치</div>
       </div>
-      <p class="panel-quote-center">악재가 꼭 악재만은 아니라고... 결과적으로 자력으로 다시 일어났기 때문에 주변국에 굽실거리지 않아도 되니 긍정적인 면도 있을 겁니다.</p>
+      <p class="panel-source">네이버 웹툰 / 썩은 핑크의 법칙</p>
+      <p class="panel-quote-center">그 누구의 잘못이 아님에도 나는 아플 수 있습니다.<br>그럴 땐 아픈 게 지나갈 때까지 다른 걸 하면 됩니다.</p>
+      <p class="panel-reason">이유를 찾지 않아도 된다는 말이 위로가 될 때.</p>
     </div>
   </div>
 
+  <!-- 7PM: 집이 없어 + IMF 댓글 + 부엌 소리 -->
   <div class="panel" id="panel-7pm">
-    <div class="panel-5am-inner" onclick="placeImage('7pm', this)">
+    <div class="panel-card clickable" onclick="placeImage('7pm', this)">
       <div class="panel-img-center">
         <!-- <img src="7pm.jpg" alt=""> -->
         <span>이미지</span>
         <div class="click-hint">클릭하면 시계에 배치</div>
       </div>
+      <p class="panel-source">네이버 웹툰 / 집이 없어</p>
       <p class="panel-quote-center">넌 어디든 갈 수 있어. 네가 조금만 더 크면.. 네가 네 집도, 동네도.. 같이 살 사람도 고를 수 있어.</p>
+      <p class="panel-reason">지금의 고통이 나중의 자유로 뒤집히는 순간.</p>
+    </div>
+    <div class="panel-divider"></div>
+    <div class="panel-card text-only">
+      <p class="panel-source">유튜브 댓글 / IMF 관련 영상</p>
+      <p class="panel-quote-center">악재가 꼭 악재만은 아니라고... 결과적으로 자력으로 다시 일어났기 때문에 주변국에 굽실거리지 않아도 되니 긍정적인 면도 있을 겁니다.</p>
+      <p class="panel-reason">시간이 지나야만 보이는 의미가 있다는 것.</p>
+    </div>
+    <div class="panel-divider"></div>
+    <div class="audio-card">
+      <p class="audio-label">오디오 / 부엌 소리</p>
+      <button class="audio-play-btn" onclick="toggleAudio(this)" aria-label="재생">
+        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path class="play-icon" d="M4 2.5L13 8L4 13.5V2.5Z" fill="#111"/>
+        </svg>
+      </button>
+      <!-- audio src에 파일 경로를 넣어주세요 -->
+      <audio id="kitchen-audio" src="kitchen.mp3" preload="none"></audio>
+      <p class="audio-quote">저녁 7시, 낮잠을 자다가<br>들리는 부엌 소리.<br><br>눈을 뜨지 않아도<br>혼자가 아니라는 걸 알았다.</p>
+      <p class="audio-reason">소리로만 아는 것이 있다.</p>
     </div>
   </div>
 
+  <!-- 11PM: 나만 들을 수 있는 종 + 믿고 먼저 증명하는 삶 -->
   <div class="panel" id="panel-11pm">
-    <div class="panel-5am-inner" onclick="placeImage('11pm', this)">
+    <div class="panel-card clickable" onclick="placeImage('11pm', this)">
       <div class="panel-img-center">
         <!-- <img src="11pm.jpg" alt=""> -->
         <span>이미지</span>
         <div class="click-hint">클릭하면 시계에 배치</div>
       </div>
-      <p class="panel-quote-center">이하나: ㅋㅋ 좀 저 나이에 저러면 한심해보이긴함…<br>ㄴ 우리 모두 누구나 잘 모르는 영역이 있는 법이져… 예를 들어 하나 님이 띄어쓰기를 못하는 것처럼.</p>
+      <p class="panel-quote-center">일이든 사람이든 '여기까지구나' 하는 순간이 옵니다.<br>그 순간엔 머릿속에 종이 울리죠.<br>나만 들을 수 있는.</p>
+      <p class="panel-reason">설명하지 않아도 되는 감각이 있다는 것.</p>
     </div>
-  </div>
-
-  <div class="panel" id="panel-5am">
-    <div class="panel-5am-inner" onclick="placeImage('5am', this)">
-      <div class="panel-img-center">
-        <!-- <img src="5am.jpg" alt=""> -->
-        <span>이미지</span>
-        <div class="click-hint">클릭하면 시계에 배치</div>
-      </div>
-      <p class="panel-quote-center">그 누구의 잘못이 아님에도 나는 아플 수 있습니다. 그럴 땐 아픈 게 지나갈 때까지 다른 걸 하면 됩니다.</p>
+    <div class="panel-divider"></div>
+    <div class="panel-card text-only">
+      <p class="panel-quote-center">가장 종교적인 해답에 가까운 대답이시네.<br><br>주장 뿐인 증명보다, 있을 거라고 믿고<br>내가 먼저 증명하는 삶.</p>
+      <p class="panel-reason">증명하기 전에 먼저 살아내는 사람이 있다는 것.</p>
     </div>
   </div>
 
@@ -422,11 +575,11 @@
   const clicked = new Set();
 
   const logData = {
-    '10am': { time: '10AM', name: '눈 떠', quote: '나쁜 짓을 한 게 아니라 나쁜 일이 벌어진 거니까.', source: '유튜브 댓글 / 아이와 장식장 영상' },
-    '1pm':  { time: '1PM',  name: '버텨라', quote: '악재가 꼭 악재만은 아니라고... 결과적으로 자력으로 다시 일어났기 때문에 주변국에 굽실거리지 않아도 되니 긍정적인 면도 있을 겁니다.', source: '유튜브 댓글 / IMF 관련 영상' },
-    '7pm':  { time: '7PM',  name: '집가자', quote: '넌 어디든 갈 수 있어. 네가 조금만 더 크면.. 네가 네 집도, 동네도.. 같이 살 사람도 고를 수 있어.', source: '네이버 웹툰 / 집이 없어' },
-    '11pm': { time: '11PM', name: 'karma 실현시간', quote: '이하나: ㅋㅋ 좀 저 나이에 저러면 한심해보이긴함… ㄴ 우리 모두 누구나 잘 모르는 영역이 있는 법이져… 예를 들어 하나 님이 띄어쓰기를 못하는 것처럼.', source: '유튜브 댓글' },
-    '5am':  { time: '5AM',  name: '자면 큰일남', quote: '그 누구의 잘못이 아님에도 나는 아플 수 있습니다. 그럴 땐 아픈 게 지나갈 때까지 다른 걸 하면 됩니다.', source: '네이버 웹툰 / 썩은 핑크의 법칙' },
+    '5am':  { time: '5AM',  name: '그냥 깸',       quote: '이유 없이 깼다가 보고 다시 잠드는.',                                   source: '— 직접 경험' },
+    '10am': { time: '10AM', name: '눈 떠',         quote: '나쁜 짓을 한 게 아니라 나쁜 일이 벌어진 거니까.',                      source: '유튜브 댓글 / 아이와 장식장 영상' },
+    '1pm':  { time: '1PM',  name: '버텨라',        quote: '그 누구의 잘못이 아님에도 나는 아플 수 있습니다.',                      source: '네이버 웹툰 / 썩은 핑크의 법칙' },
+    '7pm':  { time: '7PM',  name: '집가자',        quote: '넌 어디든 갈 수 있어.',                                              source: '네이버 웹툰 / 집이 없어' },
+    '11pm': { time: '11PM', name: 'karma 실현시간', quote: '그 순간엔 머릿속에 종이 울리죠. 나만 들을 수 있는.',                   source: '유튜브 댓글' },
   };
 
   function openPanel(id, btn) {
@@ -441,9 +594,9 @@
     document.getElementById('ed-reveal').style.opacity = opacity;
   }
 
-  function placeImage(id, imgEl) {
-    if (imgEl.classList.contains('used')) return;
-    imgEl.classList.add('used');
+  function placeImage(id, cardEl) {
+    if (cardEl.classList.contains('used')) return;
+    cardEl.classList.add('used');
     const clockImg = document.getElementById('img-' + id);
     clockImg.classList.add('placed');
 
@@ -464,7 +617,59 @@
     document.getElementById('log-area').classList.add('has-entries');
 
     document.querySelector('.clock-wrap').scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    // 5개 다 배치됐으면 ED 팝업
+    const placed = document.querySelectorAll('.panel-card.clickable.used').length;
+    if (placed === 5) openEdPopup();
   }
+
+  function toggleAudio(btn) {
+    const audio = document.getElementById('kitchen-audio');
+    const pathEl = btn.querySelector('.play-icon');
+    if (audio.paused) {
+      audio.play();
+      pathEl.setAttribute('d', 'M4 2h3v12H4V2zm5 0h3v12H9V2z');
+    } else {
+      audio.pause();
+      pathEl.setAttribute('d', 'M4 2.5L13 8L4 13.5V2.5Z');
+    }
+    audio.addEventListener('ended', () => {
+      pathEl.setAttribute('d', 'M4 2.5L13 8L4 13.5V2.5Z');
+    }, { once: true });
+  }
+
+  function openEdPopup() {
+    setTimeout(() => {
+      document.getElementById('ed-overlay').classList.add('visible');
+    }, 600);
+  }
+
+  function closeEdPopup() {
+    document.getElementById('ed-overlay').classList.remove('visible');
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('ed-overlay').addEventListener('click', function(e) {
+      if (e.target === this) closeEdPopup();
+    });
+  });
 </script>
+
+<!-- ED POPUP -->
+<div class="ed-overlay" id="ed-overlay">
+  <div class="ed-modal">
+    <button class="ed-close" onclick="closeEdPopup()">닫기</button>
+    <div class="ed-modal-title">CLOCKED</div>
+    <div class="ed-modal-body">
+      <p>이 웹사이트는 23살 오현유가 수집한 아름다운 순간들의 기록입니다.</p>
+      <p>전 예쁘다, 못생겼다는 말은 자주 써도, 아름답다는 말은 잘 쓰지 않습니다. 대상을 보는 것과, 거기에 닿는 것은 다른 일이니까요.</p>
+      <p>5AM부터 11PM까지, 시간마다 감각이 열리는 방식이 다릅니다. 의도 없이 스며드는 것, 발견되는 것, 있는 그대로인 것, 전환되는 것, 혼자 남는 것.</p>
+      <p>모아놓고 보니 전부 언어였습니다. 누군가 쓴 말들 — 그리고 말이 없어도 언어처럼 설명적으로 들린 것들.</p>
+      <p>아름다움이 언어로 설명될 때 비로소 생기는 건지, 아니면 원래 거기 있었는데 언어가 닿은 것인지, 아직 잘 모릅니다.</p>
+      <span class="ed-modal-year">CLOCKED, 2026.</span>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
