@@ -1,696 +1,411 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CLOCKED</title>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400&family=DM+Mono:wght@400&display=swap" rel="stylesheet"/>
-  <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
-
-    body {
-      background: #fff;
-      color: #111;
-      font-family: 'Noto Sans KR', sans-serif;
-      overflow-x: hidden;
-    }
-
-    .header {
-      padding: 24px 5vw 16px;
-      border-bottom: 1px solid #111;
-    }
-    .header-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(36px, 6.4vw, 64px);
-      letter-spacing: 2px;
-      line-height: 1;
-    }
-
-    /* ── CLOCK AREA ── */
-    /* ── RESPONSIVE ── */
-    html, body { max-width: 100%; }
-
-    .clock-wrap {
-      position: relative;
-      width: min(1000px, 100vw);
-      height: min(620px, 62vw);
-      margin: 40px auto;
-    }
-
-    .clock-face {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      width: min(720px, 72vw);
-      height: min(480px, 48vw);
-      transform: translate(-50%, -50%) rotate(-15deg);
-      border-radius: 50%;
-      border: 2px solid #111;
-    }
-
-    .clock-center {
-      position: absolute;
-      width: 8px;
-      height: 8px;
-      background: #111;
-      border-radius: 50%;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 10;
-    }
-
-    /* time buttons — positioned relative to 900×500 wrap */
-    .time-btn {
-      position: absolute;
-      cursor: pointer;
-      text-align: center;
-      transform: translate(-50%, -50%);
-      z-index: 5;
-    }
-    .time-btn .num {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(24px, 4.8vw, 48px);
-      color: #111;
-      display: block;
-      transition: color 0.15s;
-      line-height: 1;
-    }
-    .time-btn:hover .num { color: #999; }
-    .time-btn.active .num { color: #0000ff; }
-
-    /* ── CLOCK IMAGES (placed near each time) ── */
-    .clock-img {
-      position: absolute;
-      width: min(110px, 11vw);
-      height: min(80px, 8vw);
-      display: none;
-      animation: popin 0.3s ease;
-      z-index: 4;
-    }
-    .clock-img.placed { display: block; }
-
-    @keyframes popin {
-      from { opacity:0; transform: scale(0.85); }
-      to   { opacity:1; transform: scale(1); }
-    }
-
-    .clock-img-inner {
-      width: 100%;
-      height: 100%;
-      background: #e0ddd6;
-      border: 1px solid #ccc;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
-    .clock-img-inner img { width:100%; height:100%; object-fit:cover; display:block; }
-    .clock-img-inner span {
-      font-family: 'DM Mono', monospace;
-      font-size: 9px;
-      color: #bbb;
-      letter-spacing: 0.08em;
-    }
-
-    /* images placed between adjacent time markers */
-    #img-7pm  { left: min(285px, 28.5vw); top: min(168px, 16.8vw); transform: none; }
-    #img-11pm { left: min(490px, 49vw);   top: min(80px,  8vw);    transform: none; }
-    #img-5am  { left: min(690px, 69vw);   top: min(220px, 22vw);   transform: none; }
-    #img-10am { left: min(510px, 51vw);   top: min(430px, 43vw);   transform: none; }
-    #img-1pm  { left: min(205px, 20.5vw); top: min(340px, 34vw);   transform: none; }
-
-    /* ── PANEL ── */
-    .panel-area {
-      border-top: 1px solid #111;
-      padding: 0 5vw;
-    }
-
-    .panel { display: none; animation: up 0.25s ease; }
-    .panel.visible {
-      display: flex;
-      align-items: flex-start;
-      gap: 0;
-      overflow-x: auto;
-      padding-bottom: 36px;
-    }
-    @keyframes up {
-      from { opacity:0; transform:translateY(8px); }
-      to   { opacity:1; transform:translateY(0); }
-    }
-
-    /* individual card within a panel */
-    .panel-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-width: 240px;
-      max-width: 300px;
-      padding: 20px 24px 0 0;
-      flex-shrink: 0;
-    }
-    .panel-card:last-child { padding-right: 0; }
-
-    /* clickable image card */
-    .panel-card.clickable { cursor: pointer; }
-    .panel-card.clickable:hover .panel-img-center { opacity: 0.75; }
-    .panel-card.used .panel-img-center { opacity: 0.3; pointer-events: none; cursor: default; }
-
-    .panel-img-center {
-      width: 100%;
-      background: #ebebeb;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      position: relative;
-      transition: opacity 0.2s;
-      margin-bottom: 14px;
-    }
-    .panel-img-center img { width:100%; height:auto; display:block; object-fit:unset; }
-    .panel-img-center img + span { display: none; }
-    /* fallback when no image */
-    .panel-img-center:not(:has(img)),
-    .panel-img-center:has(img[src=""]) {
-      height: 160px;
-    }
-    .panel-img-center span { font-family:'DM Mono',monospace; font-size:10px; color:#bbb; letter-spacing:0.1em; }
-    .click-hint {
-      position: absolute;
-      bottom: 8px;
-      right: 8px;
-      font-family: 'DM Mono', monospace;
-      font-size: 9px;
-      color: #888;
-      letter-spacing: 0.08em;
-      background: rgba(255,255,255,0.85);
-      padding: 2px 6px;
-    }
-
-    /* text-only card (no image) */
-    .panel-card.text-only {
-      justify-content: flex-start;
-      padding-top: 20px;
-    }
-    .panel-card.text-only .panel-quote-center {
-      text-align: left;
-    }
-
-    .panel-source {
-      font-family: 'DM Mono', monospace;
-      font-size: 9px;
-      color: #aaa;
-      letter-spacing: 0.08em;
-      margin-bottom: 10px;
-      align-self: flex-start;
-    }
-    .panel-quote-center {
-      font-family: 'Noto Sans KR', sans-serif;
-      font-size: 12px;
-      font-weight: 300;
-      line-height: 1.85;
-      color: #222;
-      text-align: center;
-    }
-    .panel-reason {
-      font-family: 'Noto Sans KR', sans-serif;
-      font-size: 11px;
-      font-weight: 300;
-      line-height: 1.8;
-      color: #999;
-      text-align: center;
-      margin-top: 10px;
-      font-style: italic;
-    }
-    .panel-card.text-only .panel-reason {
-      text-align: left;
-    }
-    .audio-reason {
-      font-family: 'Noto Sans KR', sans-serif;
-      font-size: 11px;
-      font-weight: 300;
-      line-height: 1.8;
-      color: #999;
-      font-style: italic;
-      margin-top: 10px;
-    }
-
-    /* divider between cards */
-    .panel-divider {
-      width: 1px;
-      background: #e0e0e0;
-      align-self: stretch;
-      margin: 20px 24px 0 0;
-      flex-shrink: 0;
-    }
-
-    /* ── AUDIO CARD ── */
-    .audio-card {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      min-width: 200px;
-      max-width: 240px;
-      padding: 20px 0 0 0;
-      flex-shrink: 0;
-    }
-    .audio-play-btn {
-      width: 44px;
-      height: 44px;
-      border: 1px solid #111;
-      background: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      margin-bottom: 14px;
-      transition: background 0.15s;
-      flex-shrink: 0;
-    }
-    .audio-play-btn:hover { background: #111; }
-    .audio-play-btn:hover svg path { fill: #fff; }
-    .audio-play-btn svg { width: 16px; height: 16px; }
-    .audio-play-btn svg path { fill: #111; transition: fill 0.15s; }
-    .audio-label {
-      font-family: 'DM Mono', monospace;
-      font-size: 9px;
-      color: #aaa;
-      letter-spacing: 0.08em;
-      margin-bottom: 10px;
-    }
-    .audio-quote {
-      font-family: 'Noto Sans KR', sans-serif;
-      font-size: 12px;
-      font-weight: 300;
-      line-height: 1.85;
-      color: #222;
-    }
-
-    /* ── LOG SECTION ── */
-    .log-area {
-      border-top: 1px solid #111;
-      padding: 24px 5vw 60px;
-      display: none;
-    }
-    .log-area.has-entries { display: block; }
-
-    .log-grid {
-      display: flex;
-      gap: 0;
-      flex-wrap: wrap;
-    }
-
-    .log-entry {
-      width: calc(100% / 5);
-      padding-right: 28px;
-      animation: up 0.3s ease;
-    }
-
-    .log-entry-time {
-      font-family: 'DM Mono', monospace;
-      font-size: 9px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: #111;
-      display: block;
-      margin-bottom: 6px;
-      border-bottom: 1px solid #111;
-      padding-bottom: 4px;
-    }
-
-    .log-entry-quote {
-      font-family: 'Noto Sans KR', sans-serif;
-      font-size: 10px;
-      font-weight: 300;
-      line-height: 1.8;
-      color: #333;
-      margin-bottom: 6px;
-    }
-
-    .log-entry-source {
-      font-family: 'DM Mono', monospace;
-      font-size: 9px;
-      color: #aaa;
-      letter-spacing: 0.06em;
-    }
-
-  /* ── ED POPUP ── */
-  .ed-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.5s ease;
-  }
-  .ed-overlay.visible {
-    opacity: 1;
-    pointer-events: all;
-  }
-  .ed-modal {
-    background: #fff;
-    max-width: 480px;
-    width: 90vw;
-    padding: 48px 40px 40px;
-    position: relative;
-    transform: translateY(12px);
-    transition: transform 0.5s ease;
-  }
-  .ed-overlay.visible .ed-modal {
-    transform: translateY(0);
-  }
-  .ed-modal-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 52px;
-    letter-spacing: 2px;
-    line-height: 1;
-    margin-bottom: 28px;
-  }
-  .ed-modal-body {
-    font-family: 'Noto Sans KR', sans-serif;
-    font-size: 13px;
-    font-weight: 300;
-    line-height: 2;
-    color: #222;
-  }
-  .ed-modal-body p { margin-bottom: 16px; }
-  .ed-modal-body p:last-child { margin-bottom: 0; }
-  .ed-modal-year {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: #aaa;
-    letter-spacing: 0.1em;
-    margin-top: 32px;
-    display: block;
-  }
-  .ed-close {
-    position: absolute;
-    top: 16px;
-    right: 20px;
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: #aaa;
-    cursor: pointer;
-    letter-spacing: 0.08em;
-    background: none;
-    border: none;
-    padding: 4px;
-  }
-  .ed-close:hover { color: #111; }
-  </style>
+<meta charset="UTF-8">
+<title>FreeMajor 와이어프레임 — 화면 5개</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Apple SD Gothic Neo','Pretendard',system-ui,sans-serif;background:#F0EFEB;padding:24px 32px;color:#1A1A1A;}
+h1{font-size:20px;font-weight:600;margin-bottom:6px;color:#1A1A1A;}
+.sub{font-size:12px;color:#888;margin-bottom:28px;}
+.stage{display:flex;align-items:flex-start;justify-content:space-between;}
+.col{display:flex;flex-direction:column;align-items:center;gap:10px;flex-shrink:0;}
+.col-label{font-size:11px;font-weight:600;color:#555;letter-spacing:.3px;}
+/* phone */
+.phone{width:220px;border:2.5px solid #1A1A1A;border-radius:32px;background:#fff;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.12);}
+.statusbar{height:28px;background:#1A1A1A;display:flex;align-items:center;justify-content:center;}
+.statusbar-pill{width:60px;height:5px;border-radius:3px;background:rgba(255,255,255,.3);}
+.homeind{height:18px;background:#fff;display:flex;align-items:center;justify-content:center;}
+.homeind-bar{width:50px;height:4px;border-radius:2px;background:#ddd;}
+/* nav bar */
+.pnav{height:40px;border-bottom:1px solid #eee;display:flex;align-items:center;padding:0 12px;gap:8px;}
+.pnav-logo{font-size:13px;font-weight:700;color:#1A1A1A;letter-spacing:-.3px;}
+.pnav-title{font-size:12px;font-weight:600;color:#1A1A1A;}
+.pnav-back{width:16px;height:16px;border-radius:3px;background:#e0e0e0;}
+.pnav-r{margin-left:auto;display:flex;gap:5px;}
+.pnav-icon{width:18px;height:18px;border-radius:4px;background:#e0e0e0;}
+.pbody{padding:10px;background:#fff;}
+/* elements */
+.seed{background:#F1EFE8;border-radius:8px;padding:7px 10px;margin-bottom:8px;font-size:10px;color:#555;}
+.seed b{color:#1A1A1A;font-weight:600;}
+.tags{display:flex;gap:4px;margin-bottom:9px;overflow-x:auto;}
+.tag{font-size:9.5px;padding:3px 8px;border-radius:12px;border:1px solid #ddd;color:#777;white-space:nowrap;flex-shrink:0;}
+.tag.on{background:#1A1A1A;color:#fff;border-color:#1A1A1A;}
+.card{background:#fff;border:1px solid #E8E8E8;border-radius:10px;padding:9px;margin-bottom:7px;}
+.card-top{display:flex;align-items:center;gap:5px;margin-bottom:5px;}
+.avatar{width:20px;height:20px;border-radius:50%;background:#ddd;flex-shrink:0;}
+.badge{font-size:8.5px;padding:2px 6px;border-radius:8px;background:#EAF3DE;color:#27500A;}
+.timestamp{font-size:8.5px;color:#bbb;margin-left:auto;}
+.card-title{font-size:11px;font-weight:600;color:#1A1A1A;margin-bottom:4px;line-height:1.4;}
+.card-body{font-size:10px;color:#777;line-height:1.45;margin-bottom:5px;}
+.card-bot{display:flex;align-items:center;gap:6px;}
+.cat{font-size:8.5px;padding:2px 6px;border-radius:5px;background:#F1F1F1;color:#777;}
+.helpbtn{font-size:8.5px;padding:2px 7px;border-radius:6px;border:1px solid #e0e0e0;color:#777;}
+.repcount{font-size:9px;color:#bbb;margin-left:auto;}
+.noanswer{border-style:dashed!important;}
+.noanswer-hint{font-size:9px;color:#bbb;text-align:center;margin-bottom:4px;}
+.no-rep{font-size:9px;color:#C00;margin-left:auto;}
+.writebtn{width:100%;padding:9px;background:#1A1A1A;color:#fff;border:none;border-radius:10px;font-size:11.5px;font-weight:600;margin-top:4px;}
+/* bottom nav */
+.botnav{height:42px;border-top:1px solid #eee;display:flex;align-items:center;justify-content:space-around;padding:0 8px;}
+.boticon{width:22px;height:22px;border-radius:5px;background:#e0e0e0;}
+.boticon.on{background:#1A1A1A;}
+/* templates */
+.tmpl-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;}
+.tmpl{border:1px solid #ddd;border-radius:10px;padding:8px;cursor:pointer;}
+.tmpl.sel{border-color:#1A1A1A;border-width:2px;background:#FAFAFA;}
+.tmpl-ico{width:22px;height:22px;border-radius:6px;background:#e0e0e0;margin-bottom:4px;}
+.tmpl-label{font-size:10px;font-weight:600;color:#1A1A1A;margin-bottom:1px;}
+.tmpl-desc{font-size:9px;color:#aaa;}
+.form-lbl{font-size:9.5px;color:#888;margin-bottom:3px;}
+.form-box{width:100%;border:1px solid #e0e0e0;border-radius:8px;padding:6px 8px;font-size:10.5px;color:#bbb;background:#fff;min-height:46px;line-height:1.4;margin-bottom:6px;}
+.form-inp{width:100%;border:1px solid #e0e0e0;border-radius:8px;padding:6px 8px;font-size:10.5px;color:#1A1A1A;background:#fff;height:30px;margin-bottom:6px;display:flex;align-items:center;}
+/* badge screen */
+.badge-opt{display:flex;align-items:center;gap:8px;padding:7px 8px;border:1px solid #e0e0e0;border-radius:9px;margin-bottom:5px;}
+.badge-opt.sel{border-color:#1A1A1A;border-width:1.5px;}
+.radio{width:14px;height:14px;border-radius:50%;border:1.5px solid #ddd;flex-shrink:0;}
+.radio.sel{background:#1A1A1A;border-color:#1A1A1A;}
+.opt-tx{font-size:10.5px;color:#1A1A1A;}
+.opt-sub{font-size:9px;color:#aaa;}
+.preview{background:#F5F5F0;border-radius:8px;padding:7px 9px;margin-bottom:9px;}
+.preview-lbl{font-size:8.5px;color:#aaa;margin-bottom:4px;}
+.preview-pill{display:inline-block;font-size:9px;padding:2px 7px;border-radius:7px;background:#EAF3DE;color:#27500A;margin-right:3px;}
+.dm-row{display:flex;gap:5px;margin-bottom:7px;}
+.dm-btn{flex:1;padding:6px;border:1px solid #e0e0e0;border-radius:8px;text-align:center;font-size:10px;color:#aaa;}
+.dm-btn.sel{border-color:#1A1A1A;border-width:1.5px;color:#1A1A1A;font-weight:600;}
+/* answer screen */
+.noti{background:#EAF3DE;border-radius:8px;padding:7px 9px;margin-bottom:8px;font-size:9.5px;color:#27500A;line-height:1.4;}
+.ans{border:1px solid #e0e0e0;border-radius:10px;padding:8px;margin-bottom:6px;}
+.ans-top{display:flex;align-items:center;gap:5px;margin-bottom:5px;}
+.helpbtn.done{background:#EAF3DE;color:#27500A;border-color:#97C459;}
+.ans-inp{width:100%;border:1px solid #e0e0e0;border-radius:8px;padding:6px 8px;font-size:10px;color:#bbb;height:30px;margin-top:4px;display:flex;align-items:center;}
+/* reward screen */
+.reward-box{background:#F5F5F0;border-radius:10px;padding:12px;margin-bottom:8px;text-align:center;}
+.reward-num{font-size:26px;font-weight:700;color:#1A1A1A;}
+.reward-lbl{font-size:9.5px;color:#888;margin-top:2px;}
+.badge-card{border:1px solid #e0e0e0;border-radius:10px;padding:8px;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+.badge-ico{width:30px;height:30px;border-radius:8px;background:#EAF3DE;flex-shrink:0;}
+.badge-ico.lock{background:#F1F1F1;}
+.badge-name{font-size:10.5px;font-weight:600;color:#27500A;margin-bottom:1px;}
+.badge-name.lock{color:#aaa;}
+.badge-sub{font-size:9px;color:#8BC34A;}
+.badge-sub.lock{color:#ccc;}
+.rank-row{display:flex;align-items:center;gap:6px;margin-bottom:5px;}
+.sect-title{font-size:10.5px;font-weight:600;color:#1A1A1A;margin:7px 0 5px;}
+.rank-score{font-size:9px;color:#bbb;margin-left:auto;}
+/* annotation */
+.anno{margin-top:6px;background:#fff;border:1px solid #E0E0E0;border-radius:10px;padding:10px 12px;width:220px;}
+.anno-title{font-size:10px;font-weight:700;color:#1A1A1A;margin-bottom:5px;}
+.anno-item{display:flex;gap:6px;align-items:flex-start;margin-bottom:10px;}
+.anno-num{width:16px;height:16px;border-radius:50%;background:#1A1A1A;color:#fff;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.anno-text{font-size:9.5px;color:#555;line-height:1.45;}
+.anno-text b{color:#1A1A1A;}
+.divider{height:1px;background:#eee;margin:5px 0;}
+</style>
 </head>
 <body>
 
-<div class="header">
-  <div class="header-title">CLOCK<span id="ed-reveal" style="opacity:0; transition: opacity 0.6s ease;">ED</span></div>
-</div>
 
-<div class="clock-wrap">
-  <div class="clock-face"></div>
-  <div class="clock-center"></div>
+<div class="stage">
 
-  <!-- TIME BUTTONS -->
-  <div class="time-btn" style="left:72%;top:62%;" onclick="openPanel('10am', this)">
-    <span class="num">10AM</span>
-  </div>
-  <div class="time-btn" style="left:42%;top:24%;" onclick="openPanel('11pm', this)">
-    <span class="num">11PM</span>
-  </div>
-  <div class="time-btn" style="left:38%;top:76%;" onclick="openPanel('1pm', this)">
-    <span class="num">1PM</span>
-  </div>
-  <div class="time-btn" style="left:26%;top:44%;" onclick="openPanel('7pm', this)">
-    <span class="num">7PM</span>
-  </div>
-  <div class="time-btn" style="left:69%;top:28%;" onclick="openPanel('5am', this)">
-    <span class="num">5AM</span>
-  </div>
-
-  <!-- CLOCK IMAGES (hidden until placed) -->
-  <div class="clock-img" id="img-10am">
-    <div class="clock-img-inner">
-      <img src="10am.jpg" alt="">
-      <span>10AM</span>
+<!-- 01 홈 피드 -->
+<div class="col">
+  <div class="col-label">01 홈 피드</div>
+  <div class="phone">
+    <div class="statusbar"><div class="statusbar-pill"></div></div>
+    <div class="pnav">
+      <span class="pnav-logo">FreeMajor</span>
+      <div class="pnav-r"><div class="pnav-icon"></div><div class="pnav-icon"></div></div>
     </div>
-  </div>
-  <div class="clock-img" id="img-11pm">
-    <div class="clock-img-inner">
-      <img src="11pm.jpg" alt="">
-      <span>11PM</span>
-    </div>
-  </div>
-  <div class="clock-img" id="img-1pm">
-    <div class="clock-img-inner">
-      <img src="1pm.jpg" alt="">
-      <span>1PM</span>
-    </div>
-  </div>
-  <div class="clock-img" id="img-7pm">
-    <div class="clock-img-inner">
-      <img src="7pm.jpg" alt="">
-      <span>7PM</span>
-    </div>
-  </div>
-  <div class="clock-img" id="img-5am">
-    <div class="clock-img-inner">
-      <img src="5am.jpg" alt="">
-      <span>5AM</span>
-    </div>
-  </div>
-</div>
-
-<!-- PANELS -->
-<div class="panel-area">
-
-  <!-- 5AM: 달빛 -->
-  <div class="panel" id="panel-5am">
-    <div class="panel-card clickable" onclick="placeImage('5am', this)">
-      <div class="panel-img-center">
-        <img src="5am.jpg" alt="">
-        <span>이미지</span>
-        <div class="click-hint">클릭하면 시계에 배치</div>
+    <div class="pbody">
+      <div class="seed"><b>시각디자인 피드</b> · 오늘 새 질문 3개</div>
+      <div class="tags">
+        <div class="tag on">전체</div>
+        <div class="tag">재료·도구</div>
+        <div class="tag">공모전</div>
+        <div class="tag">취업·진로</div>
+        <div class="tag">과제·피드백</div>
       </div>
-      <p class="panel-quote-center">이유 없이 깼다가 보고 다시 잠드는.</p>
-      <p class="panel-reason">찾으려 하지 않았는데 거기 있었던 것.</p>
+      <div class="card">
+        <div class="card-top">
+          <div class="avatar"></div>
+          <span class="badge">시각디자인 4학년</span>
+          <span class="timestamp">2시간 전</span>
+        </div>
+        <div class="card-title">학교 프린트룸 형광 프린트 vs 리소 어떤 걸 써야 할까요?</div>
+        <div class="card-bot">
+          <span class="cat">재료·도구</span>
+          <span class="helpbtn">도움이 됐어요 · 12</span>
+          <span class="repcount">답변 3</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-top">
+          <div class="avatar"></div>
+          <span class="badge" style="background:#F1EFE8;color:#555;">익명</span>
+          <span class="timestamp">5시간 전</span>
+        </div>
+        <div class="card-title">올해 그래픽 공모전 중에 포트폴리오에 넣기 좋은 거 추천해주실 수 있나요</div>
+        <div class="card-bot">
+          <span class="cat">공모전</span>
+          <span class="helpbtn">도움이 됐어요 · 7</span>
+          <span class="repcount">답변 5</span>
+        </div>
+      </div>
+      <div class="card noanswer">
+        <div class="noanswer-hint">아직 답변이 없는 질문 · 먼저 도와주세요</div>
+        <div class="card-title">UX 포트폴리오 첫 케이스 스터디 어떻게 잡으셨어요?</div>
+        <div class="card-bot">
+          <span class="cat">과제·피드백</span>
+          <span class="no-rep">답변 0 · 4시간 경과</span>
+        </div>
+      </div>
+      <button class="writebtn">+ 질문 올리기</button>
     </div>
+    <div class="botnav">
+      <div class="boticon on"></div>
+      <div class="boticon"></div>
+      <div class="boticon"></div>
+      <div class="boticon"></div>
+    </div>
+    <div class="homeind"><div class="homeind-bar"></div></div>
   </div>
-
-  <!-- 10AM: 유튜브 댓글 세트 + 이하나 댓글 -->
-  <div class="panel" id="panel-10am">
-    <div class="panel-card clickable" onclick="placeImage('10am', this)">
-      <div class="panel-img-center">
-        <img src="10am.jpg" alt="">
-        <span>이미지</span>
-        <div class="click-hint">클릭하면 시계에 배치</div>
-      </div>
-      <p class="panel-source">유튜브 댓글 / 아이와 장식장 영상</p>
-      <p class="panel-quote-center">나쁜 짓을 한 게 아니라<br>나쁜 일이 벌어진 거니까.</p>
-      <p class="panel-reason">같은 장면을 다른 언어로 보는 순간.</p>
-    </div>
-    <div class="panel-divider"></div>
-    <div class="panel-card text-only">
-      <div class="panel-img-center">
-        <img src="10am.jpg" alt="">
-        <span>이미지</span>
-      </div>
-      <p class="panel-source">유튜브 댓글</p>
-      <p class="panel-quote-center">한국: 그냥 다 때려부시지 그래!!!</p>
-      <p class="panel-reason">진지함 바로 옆에 있어야 더 선명해지는 것.</p>
-    </div>
-    <div class="panel-divider"></div>
-    <div class="panel-card text-only">
-      <div class="panel-img-center">
-        <img src="10am-3.jpg" alt="">
-        <span>이미지</span>
-      </div>
-      <p class="panel-source">유튜브 댓글</p>
-      <p class="panel-quote-center">이하나: ㅋㅋ 좀 저 나이에 저러면 한심해보이긴함…<br><br>ㄴ 우리 모두 누구나 잘 모르는 영역이 있는 법이져… 예를 들어 하나 님이 띄어쓰기를 못하는 것처럼.</p>
-      <p class="panel-reason">반격이 주장이 아니라 증명으로 왔을 때.</p>
-    </div>
-  </div>
-
-  <!-- 1PM: 썩은 핑크의 법칙 -->
-  <div class="panel" id="panel-1pm">
-    <div class="panel-card clickable" onclick="placeImage('1pm', this)">
-      <div class="panel-img-center">
-        <img src="1pm.jpg" alt="">
-        <span>이미지</span>
-        <div class="click-hint">클릭하면 시계에 배치</div>
-      </div>
-      <p class="panel-source">네이버 웹툰 / 썩은 핑크의 법칙</p>
-      <p class="panel-quote-center">그 누구의 잘못이 아님에도 나는 아플 수 있습니다.<br>그럴 땐 아픈 게 지나갈 때까지 다른 걸 하면 됩니다.</p>
-      <p class="panel-reason">이유를 찾지 않아도 된다는 말이 위로가 될 때.</p>
-    </div>
-  </div>
-
-  <!-- 7PM: 집이 없어 + IMF 댓글 + 부엌 소리 -->
-  <div class="panel" id="panel-7pm">
-    <div class="panel-card clickable" onclick="placeImage('7pm', this)">
-      <div class="panel-img-center">
-        <img src="7pm.jpg" alt="">
-        <span>이미지</span>
-        <div class="click-hint">클릭하면 시계에 배치</div>
-      </div>
-      <p class="panel-source">네이버 웹툰 / 집이 없어</p>
-      <p class="panel-quote-center">넌 어디든 갈 수 있어. 네가 조금만 더 크면.. 네가 네 집도, 동네도.. 같이 살 사람도 고를 수 있어.</p>
-      <p class="panel-reason">지금의 고통이 나중의 자유로 뒤집히는 순간.</p>
-    </div>
-    <div class="panel-divider"></div>
-    <div class="panel-card text-only">
-      <div class="panel-img-center">
-        <img src="7pm-2.jpg" alt="">
-        <span>이미지</span>
-      </div>
-      <p class="panel-source">유튜브 댓글 / IMF 관련 영상</p>
-      <p class="panel-quote-center">악재가 꼭 악재만은 아니라고... 결과적으로 자력으로 다시 일어났기 때문에 주변국에 굽실거리지 않아도 되니 긍정적인 면도 있을 겁니다.</p>
-      <p class="panel-reason">시간이 지나야만 보이는 의미가 있다는 것.</p>
-    </div>
-    <div class="panel-divider"></div>
-    <div class="audio-card">
-      <p class="audio-label">오디오 / 부엌 소리</p>
-      <button class="audio-play-btn" onclick="toggleAudio(this)" aria-label="재생">
-        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path class="play-icon" d="M4 2.5L13 8L4 13.5V2.5Z" fill="#111"/>
-        </svg>
-      </button>
-      <!-- audio src에 파일 경로를 넣어주세요 -->
-      <audio id="kitchen-audio" src="kitchen.mp3" preload="none"></audio>
-      <p class="audio-quote">저녁 7시, 낮잠을 자다가<br>들리는 부엌 소리.<br><br>눈을 뜨지 않아도<br>혼자가 아니라는 걸 알았다.</p>
-      <p class="audio-reason">소리로만 아는 것이 있다.</p>
-    </div>
-  </div>
-
-  <!-- 11PM: 나만 들을 수 있는 종 + 믿고 먼저 증명하는 삶 -->
-  <div class="panel" id="panel-11pm">
-    <div class="panel-card clickable" onclick="placeImage('11pm', this)">
-      <div class="panel-img-center">
-        <img src="11pm.jpg" alt="">
-        <span>이미지</span>
-        <div class="click-hint">클릭하면 시계에 배치</div>
-      </div>
-      <p class="panel-quote-center">일이든 사람이든 '여기까지구나' 하는 순간이 옵니다.<br>그 순간엔 머릿속에 종이 울리죠.<br>나만 들을 수 있는.</p>
-      <p class="panel-reason">설명하지 않아도 되는 감각이 있다는 것.</p>
-    </div>
-    <div class="panel-divider"></div>
-    <div class="panel-card text-only">
-      <div class="panel-img-center">
-        <img src="11pm-2.jpg" alt="">
-        <span>이미지</span>
-      </div>
-      <p class="panel-quote-center">가장 종교적인 해답에 가까운 대답이시네.<br><br>주장 뿐인 증명보다, 있을 거라고 믿고<br>내가 먼저 증명하는 삶.</p>
-      <p class="panel-reason">증명하기 전에 먼저 살아내는 사람이 있다는 것.</p>
-    </div>
-  </div>
-
-</div>
-
-<div class="log-area" id="log-area">
-  <div class="log-grid" id="log-grid"></div>
-</div>
-
-<script>
-  const clicked = new Set();
-
-  const logData = {
-    '5am':  { time: '5AM',  name: '그냥 깸',       quote: '이유 없이 깼다가 보고 다시 잠드는.',                                   source: '— 직접 경험' },
-    '10am': { time: '10AM', name: '눈 떠',         quote: '나쁜 짓을 한 게 아니라 나쁜 일이 벌어진 거니까.',                      source: '유튜브 댓글 / 아이와 장식장 영상' },
-    '1pm':  { time: '1PM',  name: '버텨라',        quote: '그 누구의 잘못이 아님에도 나는 아플 수 있습니다.',                      source: '네이버 웹툰 / 썩은 핑크의 법칙' },
-    '7pm':  { time: '7PM',  name: '집가자',        quote: '넌 어디든 갈 수 있어.',                                              source: '네이버 웹툰 / 집이 없어' },
-    '11pm': { time: '11PM', name: 'karma 실현시간', quote: '그 순간엔 머릿속에 종이 울리죠. 나만 들을 수 있는.',                   source: '유튜브 댓글' },
-  };
-
-  function openPanel(id, btn) {
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('visible'));
-    document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('panel-' + id).classList.add('visible');
-    btn.classList.add('active');
-    document.querySelector('.panel-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-    clicked.add(id);
-    const opacity = Math.pow(clicked.size / 5, 2);
-    document.getElementById('ed-reveal').style.opacity = opacity;
-  }
-
-  function placeImage(id, cardEl) {
-    if (cardEl.classList.contains('used')) return;
-    cardEl.classList.add('used');
-    const clockImg = document.getElementById('img-' + id);
-    clockImg.classList.add('placed');
-
-    // close panel
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('visible'));
-    document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
-
-    // add log entry
-    const d = logData[id];
-    const entry = document.createElement('div');
-    entry.className = 'log-entry';
-    entry.innerHTML = `
-      <span class="log-entry-time">${d.time} — ${d.name}</span>
-      <p class="log-entry-quote">${d.quote}</p>
-      <p class="log-entry-source">${d.source}</p>
-    `;
-    document.getElementById('log-grid').appendChild(entry);
-    document.getElementById('log-area').classList.add('has-entries');
-
-    document.querySelector('.clock-wrap').scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-    // 5개 다 배치됐으면 ED 팝업
-    const placed = document.querySelectorAll('.panel-card.clickable.used').length;
-    if (placed === 5) openEdPopup();
-  }
-
-  function toggleAudio(btn) {
-    const audio = document.getElementById('kitchen-audio');
-    const pathEl = btn.querySelector('.play-icon');
-    if (audio.paused) {
-      audio.play();
-      pathEl.setAttribute('d', 'M4 2h3v12H4V2zm5 0h3v12H9V2z');
-    } else {
-      audio.pause();
-      pathEl.setAttribute('d', 'M4 2.5L13 8L4 13.5V2.5Z');
-    }
-    audio.addEventListener('ended', () => {
-      pathEl.setAttribute('d', 'M4 2.5L13 8L4 13.5V2.5Z');
-    }, { once: true });
-  }
-
-  function openEdPopup() {
-    setTimeout(() => {
-      document.getElementById('ed-overlay').classList.add('visible');
-    }, 600);
-  }
-
-  function closeEdPopup() {
-    document.getElementById('ed-overlay').classList.remove('visible');
-  }
-
-  document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('ed-overlay').addEventListener('click', function(e) {
-      if (e.target === this) closeEdPopup();
-    });
-  });
-</script>
-
-<!-- ED POPUP -->
-<div class="ed-overlay" id="ed-overlay">
-  <div class="ed-modal">
-    <button class="ed-close" onclick="closeEdPopup()">닫기</button>
-    <div class="ed-modal-title">CLOCKED</div>
-    <div class="ed-modal-body">
-      <p>이 웹사이트는 23살 오현유가 수집한 아름다운 순간들의 기록입니다.</p>
-      <p>예쁘다, 못생겼다는 말은 자주 써도 — 아름답다는 말은 잘 쓰지 않았습니다. 대상을 보는 것과, 거기에 닿는 것은 다른 일이니까요.</p>
-      <p>5AM부터 11PM까지, 시간마다 감각이 열리는 방식이 다릅니다. 의도 없이 스며드는 것, 발견되는 것, 있는 그대로인 것, 전환되는 것, 혼자 남는 것.</p>
-      <p>모아놓고 보니 전부 언어였습니다. 누군가 쓴 말들 — 그리고 말이 없어도 언어처럼 들린 것들.</p>
-      <p>아름다움이 언어로 설명될 때 비로소 생기는 건지, 아니면 원래 거기 있었는데 언어가 닿은 건지 — 아직 모릅니다.</p>
-      <span class="ed-modal-year">CLOCKED, 2024.</span>
-    </div>
+  <div class="anno">
+    <div class="anno-title">설계 포인트</div>
+    <div class="anno-item"><div class="anno-num">1</div><div class="anno-text"><b>시드 콘텐츠 배너</b><br><b>오늘 새 질문 N개</b>. 콜드 스타트 방지</div></div>
+    <div class="anno-item"><div class="anno-num">2</div><div class="anno-text"><b>카테고리 필터</b><br>전공 특화 4개 탭</div></div>
+    <div class="anno-item"><div class="anno-num">3</div><div class="anno-text"><b>학년 뱃지</b><br>본인 선택 공개. 신뢰 지표</div></div>
+    <div class="anno-item"><div class="anno-num">4</div><div class="anno-text"><b>답변 0 강조</b><br>빨간색 + <b>먼저 도와주세요</b> 유도</div></div>
+    <div class="anno-item"><div class="anno-num">5</div><div class="anno-text"><b>도움이 됐어요 수</b><br>올리브영 리뷰처럼 가시화</div></div>
   </div>
 </div>
 
+<!-- 02 질문 템플릿 -->
+<div class="col">
+  <div class="col-label">02 질문 템플릿</div>
+  <div class="phone">
+    <div class="statusbar"><div class="statusbar-pill"></div></div>
+    <div class="pnav">
+      <div class="pnav-back"></div>
+      <span class="pnav-title">질문 올리기</span>
+    </div>
+    <div class="pbody">
+      <div class="form-lbl" style="margin-bottom:7px;">어떤 종류의 질문인가요?</div>
+      <div class="tmpl-grid">
+        <div class="tmpl sel">
+          <div class="tmpl-ico"></div>
+          <div class="tmpl-label">재료 추천</div>
+          <div class="tmpl-desc">구매처·가격 궁금할 때</div>
+        </div>
+        <div class="tmpl">
+          <div class="tmpl-ico"></div>
+          <div class="tmpl-label">공모전 경험</div>
+          <div class="tmpl-desc">참가 경험 묻기</div>
+        </div>
+        <div class="tmpl">
+          <div class="tmpl-ico"></div>
+          <div class="tmpl-label">과제·피드백</div>
+          <div class="tmpl-desc">작업물 의견 구하기</div>
+        </div>
+        <div class="tmpl">
+          <div class="tmpl-ico"></div>
+          <div class="tmpl-label">직접 작성</div>
+          <div class="tmpl-desc">자유롭게 쓰기</div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="form-lbl">질문 제목</div>
+      <div class="form-inp" style="color:#bbb;">어떤 재료를 추천해주실 수 있나요?</div>
+      <div class="form-lbl">자세한 상황 (선택)</div>
+      <div class="form-box">예: 책상 위에서 쓸 수 있는 리소그래프 재료가 궁금해요. 예산은 3만원 이내입니다.</div>
+      <div class="form-lbl">카테고리</div>
+      <div class="form-inp">재료·도구 ▾</div>
+      <button class="writebtn">다음 — 공개 설정</button>
+    </div>
+    <div class="homeind"><div class="homeind-bar"></div></div>
+  </div>
+  <div class="anno">
+    <div class="anno-title">설계 포인트</div>
+    <div class="anno-item"><div class="anno-num">1</div><div class="anno-text"><b>4가지 템플릿</b><br>빈 칸 허들 제거. 선택하면 제목 자동 완성</div></div>
+    <div class="anno-item"><div class="anno-num">2</div><div class="anno-text"><b>상황 입력 선택</b><br>필수 아님. 인지 부담 최소화</div></div>
+    <div class="anno-item"><div class="anno-num">3</div><div class="anno-text"><b>2단계 분리</b><br>내용 작성 → 공개 설정 분리</div></div>
+  </div>
+</div>
+
+<!-- 03 뱃지 공개 설정 -->
+<div class="col">
+  <div class="col-label">03 뱃지 공개 설정</div>
+  <div class="phone">
+    <div class="statusbar"><div class="statusbar-pill"></div></div>
+    <div class="pnav">
+      <div class="pnav-back"></div>
+      <span class="pnav-title">내 정보 공개 설정</span>
+    </div>
+    <div class="pbody">
+      <div style="font-size:10px;color:#888;margin-bottom:10px;line-height:1.5;">답변자가 볼 수 있는 내 정보를 선택하세요.<br>이름·나이는 공개되지 않습니다.</div>
+      <div class="form-lbl" style="margin-bottom:6px;">공개 범위</div>
+      <div class="badge-opt">
+        <div class="radio"></div>
+        <div><div class="opt-tx">완전 익명</div><div class="opt-sub">아무 정보도 공개하지 않음</div></div>
+      </div>
+      <div class="badge-opt sel">
+        <div class="radio sel"></div>
+        <div><div class="opt-tx">전공 공개</div><div class="opt-sub">시각디자인</div></div>
+      </div>
+      <div class="badge-opt">
+        <div class="radio"></div>
+        <div><div class="opt-tx">전공 + 학년 공개</div><div class="opt-sub">시각디자인 · 3학년</div></div>
+      </div>
+      <div class="preview">
+        <div class="preview-lbl">미리보기 — 답변자에게 이렇게 보입니다</div>
+        <div style="display:flex;align-items:center;gap:5px;margin-top:5px;">
+          <div class="avatar"></div>
+          <span class="preview-pill">시각디자인</span>
+          <span style="font-size:9px;color:#bbb;">익명</span>
+        </div>
+      </div>
+      <div class="form-lbl">DM 허용</div>
+      <div class="dm-row">
+        <div class="dm-btn sel">댓글만</div>
+        <div class="dm-btn">DM 허용</div>
+      </div>
+      <div class="form-lbl">답변 기한 (선택)</div>
+      <div class="form-inp" style="color:#bbb;">기한 없음 ▾</div>
+      <button class="writebtn">질문 게시하기</button>
+    </div>
+    <div class="homeind"><div class="homeind-bar"></div></div>
+  </div>
+  <div class="anno">
+    <div class="anno-title">설계 포인트</div>
+    <div class="anno-item"><div class="anno-num">1</div><div class="anno-text"><b>3단계 공개</b><br>완전 익명 → 전공 → 전공+학년. P5 익명 역설 해결</div></div>
+    <div class="anno-item"><div class="anno-num">2</div><div class="anno-text"><b>실시간 미리보기</b><br>선택 즉시 반영</div></div>
+    <div class="anno-item"><div class="anno-num">3</div><div class="anno-text"><b>DM 선택</b><br>댓글만 / DM 허용. P4 불쾌 경험 해결</div></div>
+    <div class="anno-item"><div class="anno-num">4</div><div class="anno-text"><b>답변 기한</b><br>P7 아이디어. 답변 긴박감 유도</div></div>
+  </div>
+</div>
+
+<!-- 04 질문 상세 + 답변 -->
+<div class="col">
+  <div class="col-label">04 질문 상세 + 답변</div>
+  <div class="phone">
+    <div class="statusbar"><div class="statusbar-pill"></div></div>
+    <div class="pnav">
+      <div class="pnav-back"></div>
+      <span class="pnav-title">질문 상세</span>
+    </div>
+    <div class="pbody">
+      <div class="noti">담당 선배 <b>2명</b>에게 알림이 전송됐습니다.</div>
+      <div class="card" style="margin-bottom:10px;">
+        <div class="card-top">
+          <div class="avatar"></div>
+          <span class="badge">시각디자인</span>
+          <span class="timestamp">방금</span>
+        </div>
+        <div class="card-title" style="font-size:11.5px;">학교 프린트룸 형광 프린트 vs 리소 어떻게 선택하셨나요?</div>
+        <div class="card-body">예산 3만원 이내에서 책상 인쇄 작업에 쓰려고 하는데 어떤 걸 추천하시나요?</div>
+        <div class="card-bot"><span class="cat">재료·도구</span></div>
+      </div>
+      <div style="font-size:10.5px;font-weight:600;margin-bottom:5px;">답변 2개</div>
+      <div class="ans">
+        <div class="ans-top">
+          <div class="avatar"></div>
+          <span class="badge">시각디자인 4학년</span>
+          <span class="timestamp">1시간 전</span>
+        </div>
+        <div class="card-body">현광은 색이 선명하고 빠르게 뽑을 수 있어서 제출용으로 많이 써요. 리소는 독특한 텍스처가 있어서 포트폴리오용으로 좋고요.</div>
+        <div class="card-bot">
+          <span class="helpbtn done">도움이 됐어요 · 8</span>
+          <span class="helpbtn" style="margin-left:auto;">답글</span>
+        </div>
+      </div>
+      <div class="ans">
+        <div class="ans-top">
+          <div class="avatar"></div>
+          <span class="badge" style="background:#F1EFE8;color:#555;">익명</span>
+          <span class="timestamp">30분 전</span>
+        </div>
+        <div class="card-body">프린트룸 담당자한테 직접 여쭤보는 게 제일 빨라요. 오픈채팅방도 연결해드릴게요.</div>
+        <div class="card-bot">
+          <span class="helpbtn">도움이 됐어요 · 2</span>
+          <span class="helpbtn" style="margin-left:auto;">답글</span>
+        </div>
+      </div>
+      <div class="ans-inp">답변 달기...</div>
+    </div>
+    <div class="homeind"><div class="homeind-bar"></div></div>
+  </div>
+  <div class="anno">
+    <div class="anno-title">설계 포인트</div>
+    <div class="anno-item"><div class="anno-num">1</div><div class="anno-text"><b>알림 전송 확인</b><br><b>선배 N명에게 알림 갔어요</b>. 무응답 불안 해소. 답변 보장 UX</div></div>
+    <div class="anno-item"><div class="anno-num">2</div><div class="anno-text"><b>학년 뱃지 정렬</b><br>4학년 > 익명 순서로 신뢰도 정렬</div></div>
+    <div class="anno-item"><div class="anno-num">3</div><div class="anno-text"><b>도움이 됐어요 강조</b><br>초록색으로 가시화</div></div>
+  </div>
+</div>
+
+<!-- 05 답변 완료 + 보상 -->
+<div class="col">
+  <div class="col-label">05 답변 완료 + 보상</div>
+  <div class="phone">
+    <div class="statusbar"><div class="statusbar-pill"></div></div>
+    <div class="pnav">
+      <span class="pnav-title">활동 내역</span>
+    </div>
+    <div class="pbody">
+      <div class="noti">내 질문에 <b>새 답변</b>이 달렸어요!<br>형광 프린트 vs 리소</div>
+      <div class="reward-box">
+        <div class="reward-num">+15</div>
+        <div class="reward-lbl">답변 기여 포인트 · 이번 주</div>
+      </div>
+      <div class="sect-title">내 활동 뱃지</div>
+      <div class="badge-card">
+        <div class="badge-ico"></div>
+        <div>
+          <div class="badge-name">재료 정보 기여자</div>
+          <div class="badge-sub">재료·도구 카테고리 답변 5회 달성</div>
+        </div>
+      </div>
+      <div class="badge-card">
+        <div class="badge-ico lock"></div>
+        <div>
+          <div class="badge-name lock">공모전 멘토 · 잠금</div>
+          <div class="badge-sub lock">공모전 카테고리 답변 10회 필요</div>
+        </div>
+      </div>
+      <div class="sect-title">이번 주 인기 답변자</div>
+      <div class="card" style="padding:8px;">
+        <div class="rank-row">
+          <div class="avatar"></div>
+          <span style="font-size:10px;color:#1A1A1A;">시각디자인 4학년</span>
+          <span class="rank-score">도움이 됐어요 42</span>
+        </div>
+        <div class="rank-row">
+          <div class="avatar"></div>
+          <span style="font-size:10px;color:#1A1A1A;">시각디자인 3학년</span>
+          <span class="rank-score">도움이 됐어요 28</span>
+        </div>
+      </div>
+    </div>
+    <div class="botnav">
+      <div class="boticon"></div>
+      <div class="boticon"></div>
+      <div class="boticon"></div>
+      <div class="boticon on"></div>
+    </div>
+    <div class="homeind"><div class="homeind-bar"></div></div>
+  </div>
+  <div class="anno">
+    <div class="anno-title">설계 포인트</div>
+    <div class="anno-item"><div class="anno-num">1</div><div class="anno-text"><b>새 답변 알림</b><br>재방문 핵심 동기 (P1·P6·P8)</div></div>
+    <div class="anno-item"><div class="anno-num">2</div><div class="anno-text"><b>기여 포인트</b><br>답변 시 누적. 올리브영 리뷰 포인트 방식</div></div>
+    <div class="anno-item"><div class="anno-num">3</div><div class="anno-text"><b>달성형 뱃지</b><br>잠긴 뱃지로 다음 목표 제시. 공급자 인센티브</div></div>
+    <div class="anno-item"><div class="anno-num">4</div><div class="anno-text"><b>인기 답변자 랭킹</b><br>P6 <b>둘 다의 이점</b> 요구 구현</div></div>
+  </div>
+</div>
+
+</div>
+<div style="position:fixed;bottom:20px;right:24px;text-align:right;pointer-events:none;">
+  <div style="font-size:13px;font-weight:600;color:#1A1A1A;margin-bottom:2px;">FreeMajor 와이어프레임 — 화면 5개</div>
+  <div style="font-size:11px;color:#888;">전공 질문을 망설이는 대학생을 위한 익명 정보 공유 서비스 · 2026</div>
+</div>
 </body>
 </html>
