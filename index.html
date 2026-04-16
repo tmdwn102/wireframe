@@ -41,6 +41,17 @@ h1{font-size:20px;font-weight:600;margin-bottom:6px;color:#1A1A1A;}
 .card-bot{display:flex;align-items:center;gap:6px;}
 .cat{font-size:8.5px;padding:2px 6px;border-radius:5px;background:#F1F1F1;color:#777;}
 .helpbtn{font-size:8.5px;padding:2px 7px;border-radius:6px;border:1px solid #e0e0e0;color:#777;}
+.emoji-bar{display:flex;gap:3px;flex-wrap:wrap;margin-top:4px;}
+.emoji-btn{font-size:12px;padding:2px 4px;border-radius:6px;border:1px solid #eee;background:#fff;cursor:pointer;line-height:1.4;}
+.emoji-btn:hover{background:#F5F5F0;}
+.emoji-count{font-size:8.5px;color:#888;align-self:center;margin-left:2px;}
+.emoji-picker{background:#F8F8F5;border:1px solid #e0e0e0;border-radius:10px;padding:7px 8px;margin-top:5px;}
+.emoji-cat{font-size:8px;color:#aaa;margin-bottom:4px;font-weight:600;letter-spacing:.3px;}
+.emoji-row{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:4px;}
+.epick{font-size:14px;padding:2px 3px;border-radius:5px;cursor:pointer;border:none;background:transparent;}
+.epick:hover{background:#E8E8E4;}
+.pick-open{font-size:9px;padding:2px 7px;border-radius:6px;border:1px solid #e0e0e0;color:#777;background:#fff;cursor:pointer;}
+
 .repcount{font-size:9px;color:#bbb;margin-left:auto;}
 .noanswer{border-style:dashed!important;}
 .noanswer-hint{font-size:9px;color:#bbb;text-align:center;margin-bottom:4px;}
@@ -135,7 +146,7 @@ h1{font-size:20px;font-weight:600;margin-bottom:6px;color:#1A1A1A;}
         <div class="card-title">학교 프린트룸 형광 프린트 vs 리소 어떤 걸 써야 할까요?</div>
         <div class="card-bot">
           <span class="cat">재료·도구</span>
-          <span class="helpbtn">도움이 됐어요 · 12</span>
+          <div class="emoji-bar"><span class="emoji-btn">🙏</span><span class="emoji-btn">🔥</span><span class="emoji-btn">💡</span><span class="emoji-btn">😮</span><span class="emoji-btn">❤️</span><span class="emoji-count">+12</span></div>
           <span class="repcount">답변 3</span>
         </div>
       </div>
@@ -148,7 +159,7 @@ h1{font-size:20px;font-weight:600;margin-bottom:6px;color:#1A1A1A;}
         <div class="card-title">올해 그래픽 공모전 중에 포트폴리오에 넣기 좋은 거 추천해주실 수 있나요</div>
         <div class="card-bot">
           <span class="cat">공모전</span>
-          <span class="helpbtn">도움이 됐어요 · 7</span>
+          <div class="emoji-bar"><span class="emoji-btn">🙏</span><span class="emoji-btn">✨</span><span class="emoji-btn">👏</span><span class="emoji-count">+7</span></div>
           <span class="repcount">답변 5</span>
         </div>
       </div>
@@ -176,7 +187,7 @@ h1{font-size:20px;font-weight:600;margin-bottom:6px;color:#1A1A1A;}
     <div class="anno-item"><div class="anno-num">2</div><div class="anno-text"><b>카테고리 필터</b><br>전공 특화 4개 탭</div></div>
     <div class="anno-item"><div class="anno-num">3</div><div class="anno-text"><b>학년 뱃지</b><br>본인 선택 공개. 신뢰 지표</div></div>
     <div class="anno-item"><div class="anno-num">4</div><div class="anno-text"><b>답변 0 강조</b><br>빨간색 + <b>먼저 도와주세요</b> 유도</div></div>
-    <div class="anno-item"><div class="anno-num">5</div><div class="anno-text"><b>도움이 됐어요 수</b><br>올리브영 리뷰처럼 가시화</div></div>
+    <div class="anno-item"><div class="anno-num">5</div><div class="anno-text"><b>이모지 반응 바</b><br>🙏🔥💡 — 감정 표현으로 참여 유도</div></div>
   </div>
 </div>
 
@@ -294,7 +305,7 @@ h1{font-size:20px;font-weight:600;margin-bottom:6px;color:#1A1A1A;}
       <span class="pnav-title">질문 상세</span>
     </div>
     <div class="pbody">
-      <div class="noti">담당 선배 <b>2명</b>에게 알림이 전송됐습니다.</div>
+      <div class="noti">도움주실 선배님 <b>2명</b>에게 알림이 갔어요 🙌</div>
       <div class="card" style="margin-bottom:10px;">
         <div class="card-top">
           <div class="avatar"></div>
@@ -314,7 +325,22 @@ h1{font-size:20px;font-weight:600;margin-bottom:6px;color:#1A1A1A;}
         </div>
         <div class="card-body">현광은 색이 선명하고 빠르게 뽑을 수 있어서 제출용으로 많이 써요. 리소는 독특한 텍스처가 있어서 포트폴리오용으로 좋고요.</div>
         <div class="card-bot">
-          <span class="helpbtn done">도움이 됐어요 · 8</span>
+          <div>
+              <button class="pick-open">반응하기 +</button>
+              <div class="emoji-picker">
+                <div class="emoji-cat">🙏 감사</div>
+                <div class="emoji-row"><span class="epick">🙏</span><span class="epick">😭</span><span class="epick">🫶</span><span class="epick">🥹</span><span class="epick">❤️</span><span class="epick">🫂</span><span class="epick">💕</span></div>
+                <div class="emoji-cat">💡 인사이트</div>
+                <div class="emoji-row"><span class="epick">💡</span><span class="epick">🔥</span><span class="epick">✨</span><span class="epick">👀</span><span class="epick">😮</span><span class="epick">🤯</span><span class="epick">💥</span></div>
+                <div class="emoji-cat">😂 공감</div>
+                <div class="emoji-row"><span class="epick">😂</span><span class="epick">😭</span><span class="epick">🫠</span><span class="epick">😤</span><span class="epick">😩</span><span class="epick">🥲</span><span class="epick">💀</span></div>
+                <div class="emoji-cat">👍 지지</div>
+                <div class="emoji-row"><span class="epick">👍</span><span class="epick">👏</span><span class="epick">🙌</span><span class="epick">💪</span><span class="epick">🫡</span><span class="epick">👑</span><span class="epick">🏆</span></div>
+                <div class="emoji-cat">🎨 디자인 특화</div>
+                <div class="emoji-row"><span class="epick">🎨</span><span class="epick">✏️</span><span class="epick">📐</span><span class="epick">🖼️</span><span class="epick">🖌️</span><span class="epick">📸</span><span class="epick">💻</span></div>
+              </div>
+              <div class="emoji-bar" style="margin-top:4px;"><span class="emoji-btn">🙏</span><span class="emoji-btn">🔥</span><span class="emoji-btn">💡</span><span class="emoji-count">+8</span></div>
+            </div>
           <span class="helpbtn" style="margin-left:auto;">답글</span>
         </div>
       </div>
@@ -326,7 +352,7 @@ h1{font-size:20px;font-weight:600;margin-bottom:6px;color:#1A1A1A;}
         </div>
         <div class="card-body">프린트룸 담당자한테 직접 여쭤보는 게 제일 빨라요. 오픈채팅방도 연결해드릴게요.</div>
         <div class="card-bot">
-          <span class="helpbtn">도움이 됐어요 · 2</span>
+          <div class="emoji-bar"><span class="emoji-btn">🙏</span><span class="emoji-btn">👍</span><span class="emoji-count">+2</span><button class="pick-open" style="margin-left:4px;">+ 반응</button></div>
           <span class="helpbtn" style="margin-left:auto;">답글</span>
         </div>
       </div>
@@ -338,7 +364,7 @@ h1{font-size:20px;font-weight:600;margin-bottom:6px;color:#1A1A1A;}
     <div class="anno-title">설계 포인트</div>
     <div class="anno-item"><div class="anno-num">1</div><div class="anno-text"><b>알림 전송 확인</b><br><b>선배 N명에게 알림 갔어요</b>. 무응답 불안 해소. 답변 보장 UX</div></div>
     <div class="anno-item"><div class="anno-num">2</div><div class="anno-text"><b>학년 뱃지 정렬</b><br>4학년 > 익명 순서로 신뢰도 정렬</div></div>
-    <div class="anno-item"><div class="anno-num">3</div><div class="anno-text"><b>도움이 됐어요 강조</b><br>초록색으로 가시화</div></div>
+    <div class="anno-item"><div class="anno-num">3</div><div class="anno-text"><b>이모지 피커</b><br>5개 카테고리 × 7개 이모지 — 뛰어놀 수 있는 반응 공간</div></div>
   </div>
 </div>
 
@@ -376,12 +402,12 @@ h1{font-size:20px;font-weight:600;margin-bottom:6px;color:#1A1A1A;}
         <div class="rank-row">
           <div class="avatar"></div>
           <span style="font-size:10px;color:#1A1A1A;">시각디자인 4학년</span>
-          <span class="rank-score">도움이 됐어요 42</span>
+          <span class="rank-score">🔥×42</span>
         </div>
         <div class="rank-row">
           <div class="avatar"></div>
           <span style="font-size:10px;color:#1A1A1A;">시각디자인 3학년</span>
-          <span class="rank-score">도움이 됐어요 28</span>
+          <span class="rank-score">🙏×28</span>
         </div>
       </div>
     </div>
