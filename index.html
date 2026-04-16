@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>FreeMajor 와이어프레임 — 화면 5개</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Apple SD Gothic Neo','Pretendard',system-ui,sans-serif;background:#F0EFEB;padding:24px 32px;color:#1A1A1A;}
+h1{font-size:20px;font-weight:600;margin-bottom:6px;color:#1A1A1A;}
+.sub{font-size:12px;color:#888;margin-bottom:28px;}
+.stage{display:flex;align-items:flex-start;justify-content:space-between;}
+.col{display:flex;flex-direction:column;align-items:center;gap:10px;flex-shrink:0;}
+.col-label{font-size:11px;font-weight:600;color:#555;letter-spacing:.3px;}
+/* phone */
+.phone{width:220px;border:2.5px solid #1A1A1A;border-radius:32px;background:#fff;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.12);}
+.statusbar{height:28px;background:#1A1A1A;display:flex;align-items:center;justify-content:center;}
+.statusbar-pill{width:60px;height:5px;border-radius:3px;background:rgba(255,255,255,.3);}
+.homeind{height:18px;background:#fff;display:flex;align-items:center;justify-content:center;}
+.homeind-bar{width:50px;height:4px;border-radius:2px;background:#ddd;}
+/* nav bar */
+.pnav{height:40px;border-bottom:1px solid #eee;display:flex;align-items:center;padding:0 12px;gap:8px;}
+.pnav-logo{font-size:13px;font-weight:700;color:#1A1A1A;letter-spacing:-.3px;}
+.pnav-title{font-size:12px;font-weight:600;color:#1A1A1A;}
+.pnav-back{width:16px;height:16px;border-radius:3px;background:#e0e0e0;}
+.pnav-r{margin-left:auto;display:flex;gap:5px;}
+.pnav-icon{width:18px;height:18px;border-radius:4px;background:#e0e0e0;}
+.pbody{padding:10px;background:#fff;}
+/* elements */
+.seed{background:#F1EFE8;border-radius:8px;padding:7px 10px;margin-bottom:8px;font-size:10px;color:#555;}
+.seed b{color:#1A1A1A;font-weight:600;}
+.tags{display:flex;gap:4px;margin-bottom:9px;overflow-x:auto;}
+.tag{font-size:9.5px;padding:3px 8px;border-radius:12px;border:1px solid #ddd;color:#777;white-space:nowrap;flex-shrink:0;}
+.tag.on{background:#1A1A1A;color:#fff;border-color:#1A1A1A;}
+.card{background:#fff;border:1px solid #E8E8E8;border-radius:10px;padding:9px;margin-bottom:7px;}
+.card-top{display:flex;align-items:center;gap:5px;margin-bottom:5px;}
+.avatar{width:20px;height:20px;border-radius:50%;background:#ddd;flex-shrink:0;}
+.badge{font-size:8.5px;padding:2px 6px;border-radius:8px;background:#EAF3DE;color:#27500A;}
+.timestamp{font-size:8.5px;color:#bbb;margin-left:auto;}
+.card-title{font-size:11px;font-weight:600;color:#1A1A1A;margin-bottom:4px;line-height:1.4;}
+.card-body{font-size:10px;color:#777;line-height:1.45;margin-bottom:5px;}
+.card-bot{display:flex;align-items:center;gap:6px;}
+.cat{font-size:8.5px;padding:2px 6px;border-radius:5px;background:#F1F1F1;color:#777;}
+.helpbtn{font-size:8.5px;padding:2px 7px;border-radius:6px;border:1px solid #e0e0e0;color:#777;}
+.emoji-bar{display:flex;gap:3px;flex-wrap:wrap;margin-top:4px;}
+.emoji-btn{font-size:12px;padding:2px 4px;border-radius:6px;border:1px solid #eee;background:#fff;cursor:pointer;line-height:1.4;}
+.emoji-btn:hover{background:#F5F5F0;}
+.emoji-count{font-size:8.5px;color:#888;align-self:center;margin-left:2px;}
+.emoji-picker{background:#F8F8F5;border:1px solid #e0e0e0;border-radius:10px;padding:7px 8px;margin-top:5px;}
+.emoji-cat{font-size:8px;color:#aaa;margin-bottom:4px;font-weight:600;letter-spacing:.3px;}
+.emoji-row{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:4px;}
+.epick{font-size:14px;padding:2px 3px;border-radius:5px;cursor:pointer;border:none;background:transparent;}
+.epick:hover{background:#E8E8E4;}
+.pick-open{font-size:9px;padding:2px 7px;border-radius:6px;border:1px solid #e0e0e0;color:#777;background:#fff;cursor:pointer;}
+
+.repcount{font-size:9px;color:#bbb;margin-left:auto;}
+.noanswer{border-style:dashed!important;}
+.noanswer-hint{font-size:9px;color:#bbb;text-align:center;margin-bottom:4px;}
+.no-rep{font-size:9px;color:#C00;margin-left:auto;}
+.writebtn{width:100%;padding:9px;background:#1A1A1A;color:#fff;border:none;border-radius:10px;font-size:11.5px;font-weight:600;margin-top:4px;}
+/* bottom nav */
+.botnav{height:42px;border-top:1px solid #eee;display:flex;align-items:center;justify-content:space-around;padding:0 8px;}
+.boticon{width:22px;height:22px;border-radius:5px;background:#e0e0e0;}
+.boticon.on{background:#1A1A1A;}
+/* templates */
+.tmpl-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;}
+.tmpl{border:1px solid #ddd;border-radius:10px;padding:8px;cursor:pointer;}
+.tmpl.sel{border-color:#1A1A1A;border-width:2px;background:#FAFAFA;}
+.tmpl-ico{width:22px;height:22px;border-radius:6px;background:#e0e0e0;margin-bottom:4px;}
+.tmpl-label{font-size:10px;font-weight:600;color:#1A1A1A;margin-bottom:1px;}
+.tmpl-desc{font-size:9px;color:#aaa;}
+.form-lbl{font-size:9.5px;color:#888;margin-bottom:3px;}
+.form-box{width:100%;border:1px solid #e0e0e0;border-radius:8px;padding:6px 8px;font-size:10.5px;color:#bbb;background:#fff;min-height:46px;line-height:1.4;margin-bottom:6px;}
+.form-inp{width:100%;border:1px solid #e0e0e0;border-radius:8px;padding:6px 8px;font-size:10.5px;color:#1A1A1A;background:#fff;height:30px;margin-bottom:6px;display:flex;align-items:center;}
+/* badge screen */
+.badge-opt{display:flex;align-items:center;gap:8px;padding:7px 8px;border:1px solid #e0e0e0;border-radius:9px;margin-bottom:5px;}
+.badge-opt.sel{border-color:#1A1A1A;border-width:1.5px;}
+.radio{width:14px;height:14px;border-radius:50%;border:1.5px solid #ddd;flex-shrink:0;}
+.radio.sel{background:#1A1A1A;border-color:#1A1A1A;}
+.opt-tx{font-size:10.5px;color:#1A1A1A;}
+.opt-sub{font-size:9px;color:#aaa;}
+.preview{background:#F5F5F0;border-radius:8px;padding:7px 9px;margin-bottom:9px;}
+.preview-lbl{font-size:8.5px;color:#aaa;margin-bottom:4px;}
+.preview-pill{display:inline-block;font-size:9px;padding:2px 7px;border-radius:7px;background:#EAF3DE;color:#27500A;margin-right:3px;}
+.dm-row{display:flex;gap:5px;margin-bottom:7px;}
+.dm-btn{flex:1;padding:6px;border:1px solid #e0e0e0;border-radius:8px;text-align:center;font-size:10px;color:#aaa;}
+.dm-btn.sel{border-color:#1A1A1A;border-width:1.5px;color:#1A1A1A;font-weight:600;}
+/* answer screen */
+.noti{background:#EAF3DE;border-radius:8px;padding:7px 9px;margin-bottom:8px;font-size:9.5px;color:#27500A;line-height:1.4;}
+.ans{border:1px solid #e0e0e0;border-radius:10px;padding:8px;margin-bottom:6px;}
+.ans-top{display:flex;align-items:center;gap:5px;margin-bottom:5px;}
+.helpbtn.done{background:#EAF3DE;color:#27500A;border-color:#97C459;}
+.ans-inp{width:100%;border:1px solid #e0e0e0;border-radius:8px;padding:6px 8px;font-size:10px;color:#bbb;height:30px;margin-top:4px;display:flex;align-items:center;}
+/* reward screen */
+.reward-box{background:#F5F5F0;border-radius:10px;padding:12px;margin-bottom:8px;text-align:center;}
+.reward-num{font-size:26px;font-weight:700;color:#1A1A1A;}
+.reward-lbl{font-size:9.5px;color:#888;margin-top:2px;}
+.badge-card{border:1px solid #e0e0e0;border-radius:10px;padding:8px;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+.badge-ico{width:30px;height:30px;border-radius:8px;background:#EAF3DE;flex-shrink:0;}
+.badge-ico.lock{background:#F1F1F1;}
+.badge-name{font-size:10.5px;font-weight:600;color:#27500A;margin-bottom:1px;}
+.badge-name.lock{color:#aaa;}
+.badge-sub{font-size:9px;color:#8BC34A;}
+.badge-sub.lock{color:#ccc;}
+.rank-row{display:flex;align-items:center;gap:6px;margin-bottom:5px;}
+.sect-title{font-size:10.5px;font-weight:600;color:#1A1A1A;margin:7px 0 5px;}
+.rank-score{font-size:9px;color:#bbb;margin-left:auto;}
+/* annotation */
+.anno{margin-top:6px;background:#fff;border:1px solid #E0E0E0;border-radius:10px;padding:10px 12px;width:220px;}
+.anno-title{font-size:10px;font-weight:700;color:#1A1A1A;margin-bottom:5px;}
+.anno-item{display:flex;gap:6px;align-items:flex-start;margin-bottom:10px;}
+.anno-num{width:16px;height:16px;border-radius:50%;background:#1A1A1A;color:#fff;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.anno-text{font-size:9.5px;color:#555;line-height:1.45;}
+.anno-text b{color:#1A1A1A;}
+.divider{height:1px;background:#eee;margin:5px 0;}
+</style>
+</head>
+<body>
+
+
+<div class="stage">
+
+<!-- 01 홈 피드 -->
+<div class="col">
+  <div class="col-label">01 홈 피드</div>
+  <div class="phone">
+    <div class="statusbar"><div class="statusbar-pill"></div></div>
+    <div class="pnav">
+      <span class="pnav-logo">FreeMajor</span>
+      <div class="pnav-r"><div class="pnav-icon"></div><div class="pnav-icon"></div></div>
+    </div>
+    <div class="pbody">
+      <div class="seed"><b>시각디자인 피드</b> · 오늘 새 질문 3개</div>
+      <div class="tags">
+        <div class="tag on">전체</div>
+        <div class="tag">재료·도구</div>
+        <div class="tag">공모전</div>
+        <div class="tag">취업·진로</div>
+        <div class="tag">과제·피드백</div>
+      </div>
+      <div class="card">
+        <div class="card-top">
+          <div class="avatar"></div>
+          <span class="badge">시각디자인 4학년</span>
+          <span class="timestamp">2시간 전</span>
+        </div>
+        <div class="card-title">학교 프린트룸 형광 프린트 vs 리소 어떤 걸 써야 할까요?</div>
+        <div class="card-bot">
+          <span class="cat">재료·도구</span>
+          <div class="emoji-bar"><span class="emoji-btn">🙏</span><span class="emoji-btn">🔥</span><span class="emoji-btn">💡</span><span class="emoji-btn">😮</span><span class="emoji-btn">❤️</span><span class="emoji-count">+12</span></div>
+          <span class="repcount">답변 3</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-top">
+          <div class="avatar"></div>
+          <span class="badge" style="background:#F1EFE8;color:#555;">익명</span>
+          <span class="timestamp">5시간 전</span>
+        </div>
+        <div class="card-title">올해 그래픽 공모전 중에 포트폴리오에 넣기 좋은 거 추천해주실 수 있나요</div>
+        <div class="card-bot">
+          <span class="cat">공모전</span>
+          <div class="emoji-bar"><span class="emoji-btn">🙏</span><span class="emoji-btn">✨</span><span class="emoji-btn">👏</span><span class="emoji-count">+7</span></div>
+          <span class="repcount">답변 5</span>
+        </div>
+      </div>
+      <div class="card noanswer">
+        <div class="noanswer-hint">아직 답변이 없는 질문 · 먼저 도와주세요</div>
+        <div class="card-title">UX 포트폴리오 첫 케이스 스터디 어떻게 잡으셨어요?</div>
+        <div class="card-bot">
+          <span class="cat">과제·피드백</span>
+          <span class="no-rep">답변 0 · 4시간 경과</span>
+        </div>
+      </div>
+      <button class="writebtn">+ 질문 올리기</button>
+    </div>
+    <div class="botnav">
+      <div class="boticon on"></div>
+      <div class="boticon"></div>
+      <div class="boticon"></div>
+      <div class="boticon"></div>
+    </div>
+    <div class="homeind"><div class="homeind-bar"></div></div>
+  </div>
+  <div class="anno">
+    <div class="anno-title">설계 포인트</div>
+    <div class="anno-item"><div class="anno-num">1</div><div class="anno-text"><b>시드 콘텐츠 배너</b><br><b>오늘 새 질문 N개</b>. 콜드 스타트 방지</div></div>
+    <div class="anno-item"><div class="anno-num">2</div><div class="anno-text"><b>카테고리 필터</b><br>전공 특화 4개 탭</div></div>
+    <div class="anno-item"><div class="anno-num">3</div><div class="anno-text"><b>학년 뱃지</b><br>본인 선택 공개. 신뢰 지표</div></div>
+    <div class="anno-item"><div class="anno-num">4</div><div class="anno-text"><b>답변 0 강조</b><br>빨간색 + <b>먼저 도와주세요</b> 유도</div></div>
+    <div class="anno-item"><div class="anno-num">5</div><div class="anno-text"><b>이모지 반응 바</b><br>🙏🔥💡 — 감정 표현으로 참여 유도</div></div>
+  </div>
+</div>
+
+<!-- 02 질문 템플릿 -->
+<div class="col">
+  <div class="col-label">02 질문 템플릿</div>
+  <div class="phone">
+    <div class="statusbar"><div class="statusbar-pill"></div></div>
+    <div class="pnav">
+      <div class="pnav-back"></div>
+      <span class="pnav-title">질문 올리기</span>
+    </div>
+    <div class="pbody">
+      <div class="form-lbl" style="margin-bottom:7px;">어떤 종류의 질문인가요?</div>
+      <div class="tmpl-grid">
+        <div class="tmpl sel">
+          <div class="tmpl-ico"></div>
+          <div class="tmpl-label">재료 추천</div>
+          <div class="tmpl-desc">구매처·가격 궁금할 때</div>
+        </div>
+        <div class="tmpl">
+          <div class="tmpl-ico"></div>
+          <div class="tmpl-label">공모전 경험</div>
+          <div class="tmpl-desc">참가 경험 묻기</div>
+        </div>
+        <div class="tmpl">
+          <div class="tmpl-ico"></div>
+          <div class="tmpl-label">과제·피드백</div>
+          <div class="tmpl-desc">작업물 의견 구하기</div>
+        </div>
+        <div class="tmpl">
+          <div class="tmpl-ico"></div>
+          <div class="tmpl-label">직접 작성</div>
+          <div class="tmpl-desc">자유롭게 쓰기</div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="form-lbl">질문 제목</div>
+      <div class="form-inp" style="color:#bbb;">어떤 재료를 추천해주실 수 있나요?</div>
+      <div class="form-lbl">자세한 상황 (선택)</div>
+      <div class="form-box">예: 책상 위에서 쓸 수 있는 리소그래프 재료가 궁금해요. 예산은 3만원 이내입니다.</div>
+      <div class="form-lbl">카테고리</div>
+      <div class="form-inp">재료·도구 ▾</div>
+      <button class="writebtn">다음 — 공개 설정</button>
+    </div>
+    <div class="homeind"><div class="homeind-bar"></div></div>
+  </div>
+  <div class="anno">
+    <div class="anno-title">설계 포인트</div>
+    <div class="anno-item"><div class="anno-num">1</div><div class="anno-text"><b>4가지 템플릿</b><br>빈 칸 허들 제거. 선택하면 제목 자동 완성</div></div>
+    <div class="anno-item"><div class="anno-num">2</div><div class="anno-text"><b>상황 입력 선택</b><br>필수 아님. 인지 부담 최소화</div></div>
+    <div class="anno-item"><div class="anno-num">3</div><div class="anno-text"><b>2단계 분리</b><br>내용 작성 → 공개 설정 분리</div></div>
+  </div>
+</div>
+
+<!-- 03 뱃지 공개 설정 -->
+<div class="col">
+  <div class="col-label">03 뱃지 공개 설정</div>
+  <div class="phone">
+    <div class="statusbar"><div class="statusbar-pill"></div></div>
+    <div class="pnav">
+      <div class="pnav-back"></div>
+      <span class="pnav-title">내 정보 공개 설정</span>
+    </div>
+    <div class="pbody">
+      <div style="font-size:10px;color:#888;margin-bottom:10px;line-height:1.5;">답변자가 볼 수 있는 내 정보를 선택하세요.<br>이름·나이는 공개되지 않습니다.</div>
+      <div class="form-lbl" style="margin-bottom:6px;">공개 범위</div>
+      <div class="badge-opt">
+        <div class="radio"></div>
+        <div><div class="opt-tx">완전 익명</div><div class="opt-sub">아무 정보도 공개하지 않음</div></div>
+      </div>
+      <div class="badge-opt sel">
+        <div class="radio sel"></div>
+        <div><div class="opt-tx">전공 공개</div><div class="opt-sub">시각디자인</div></div>
+      </div>
+      <div class="badge-opt">
+        <div class="radio"></div>
+        <div><div class="opt-tx">전공 + 학년 공개</div><div class="opt-sub">시각디자인 · 3학년</div></div>
+      </div>
+      <div class="preview">
+        <div class="preview-lbl">미리보기 — 답변자에게 이렇게 보입니다</div>
+        <div style="display:flex;align-items:center;gap:5px;margin-top:5px;">
+          <div class="avatar"></div>
+          <span class="preview-pill">시각디자인</span>
+          <span style="font-size:9px;color:#bbb;">익명</span>
+        </div>
+      </div>
+      <div class="form-lbl">DM 허용</div>
+      <div class="dm-row">
+        <div class="dm-btn sel">댓글만</div>
+        <div class="dm-btn">DM 허용</div>
+      </div>
+      <div class="form-lbl">답변 기한 (선택)</div>
+      <div class="form-inp" style="color:#bbb;">기한 없음 ▾</div>
+      <button class="writebtn">질문 게시하기</button>
+    </div>
+    <div class="homeind"><div class="homeind-bar"></div></div>
+  </div>
+  <div class="anno">
+    <div class="anno-title">설계 포인트</div>
+    <div class="anno-item"><div class="anno-num">1</div><div class="anno-text"><b>3단계 공개</b><br>완전 익명 → 전공 → 전공+학년. P5 익명 역설 해결</div></div>
+    <div class="anno-item"><div class="anno-num">2</div><div class="anno-text"><b>실시간 미리보기</b><br>선택 즉시 반영</div></div>
+    <div class="anno-item"><div class="anno-num">3</div><div class="anno-text"><b>DM 선택</b><br>댓글만 / DM 허용. P4 불쾌 경험 해결</div></div>
+    <div class="anno-item"><div class="anno-num">4</div><div class="anno-text"><b>답변 기한</b><br>P7 아이디어. 답변 긴박감 유도</div></div>
+  </div>
+</div>
+
+<!-- 04 질문 상세 + 답변 -->
+<div class="col">
+  <div class="col-label">04 질문 상세 + 답변</div>
+  <div class="phone">
+    <div class="statusbar"><div class="statusbar-pill"></div></div>
+    <div class="pnav">
+      <div class="pnav-back"></div>
+      <span class="pnav-title">질문 상세</span>
+    </div>
+    <div class="pbody">
+      <div class="noti">도움주실 선배님 <b>2명</b>에게 알림이 갔어요 🙌</div>
+      <div class="card" style="margin-bottom:10px;">
+        <div class="card-top">
+          <div class="avatar"></div>
+          <span class="badge">시각디자인</span>
+          <span class="timestamp">방금</span>
+        </div>
+        <div class="card-title" style="font-size:11.5px;">학교 프린트룸 형광 프린트 vs 리소 어떻게 선택하셨나요?</div>
+        <div class="card-body">예산 3만원 이내에서 책상 인쇄 작업에 쓰려고 하는데 어떤 걸 추천하시나요?</div>
+        <div class="card-bot"><span class="cat">재료·도구</span></div>
+      </div>
+      <div style="font-size:10.5px;font-weight:600;margin-bottom:5px;">답변 2개</div>
+      <div class="ans">
+        <div class="ans-top">
+          <div class="avatar"></div>
+          <span class="badge">시각디자인 4학년</span>
+          <span class="timestamp">1시간 전</span>
+        </div>
+        <div class="card-body">현광은 색이 선명하고 빠르게 뽑을 수 있어서 제출용으로 많이 써요. 리소는 독특한 텍스처가 있어서 포트폴리오용으로 좋고요.</div>
+        <div class="card-bot">
+          <div>
+              <button class="pick-open">반응하기 +</button>
+              <div class="emoji-picker">
+                <div class="emoji-cat">🙏 감사</div>
+                <div class="emoji-row"><span class="epick">🙏</span><span class="epick">😭</span><span class="epick">🫶</span><span class="epick">🥹</span><span class="epick">❤️</span><span class="epick">🫂</span><span class="epick">💕</span></div>
+                <div class="emoji-cat">💡 인사이트</div>
+                <div class="emoji-row"><span class="epick">💡</span><span class="epick">🔥</span><span class="epick">✨</span><span class="epick">👀</span><span class="epick">😮</span><span class="epick">🤯</span><span class="epick">💥</span></div>
+                <div class="emoji-cat">😂 공감</div>
+                <div class="emoji-row"><span class="epick">😂</span><span class="epick">😭</span><span class="epick">🫠</span><span class="epick">😤</span><span class="epick">😩</span><span class="epick">🥲</span><span class="epick">💀</span></div>
+                <div class="emoji-cat">👍 지지</div>
+                <div class="emoji-row"><span class="epick">👍</span><span class="epick">👏</span><span class="epick">🙌</span><span class="epick">💪</span><span class="epick">🫡</span><span class="epick">👑</span><span class="epick">🏆</span></div>
+                <div class="emoji-cat">🎨 디자인 특화</div>
+                <div class="emoji-row"><span class="epick">🎨</span><span class="epick">✏️</span><span class="epick">📐</span><span class="epick">🖼️</span><span class="epick">🖌️</span><span class="epick">📸</span><span class="epick">💻</span></div>
+              </div>
+              <div class="emoji-bar" style="margin-top:4px;"><span class="emoji-btn">🙏</span><span class="emoji-btn">🔥</span><span class="emoji-btn">💡</span><span class="emoji-count">+8</span></div>
+            </div>
+          <span class="helpbtn" style="margin-left:auto;">답글</span>
+        </div>
+      </div>
+      <div class="ans">
+        <div class="ans-top">
+          <div class="avatar"></div>
+          <span class="badge" style="background:#F1EFE8;color:#555;">익명</span>
+          <span class="timestamp">30분 전</span>
+        </div>
+        <div class="card-body">프린트룸 담당자한테 직접 여쭤보는 게 제일 빨라요. 오픈채팅방도 연결해드릴게요.</div>
+        <div class="card-bot">
+          <div class="emoji-bar"><span class="emoji-btn">🙏</span><span class="emoji-btn">👍</span><span class="emoji-count">+2</span><button class="pick-open" style="margin-left:4px;">+ 반응</button></div>
+          <span class="helpbtn" style="margin-left:auto;">답글</span>
+        </div>
+      </div>
+      <div class="ans-inp">답변 달기...</div>
+    </div>
+    <div class="homeind"><div class="homeind-bar"></div></div>
+  </div>
+  <div class="anno">
+    <div class="anno-title">설계 포인트</div>
+    <div class="anno-item"><div class="anno-num">1</div><div class="anno-text"><b>알림 전송 확인</b><br><b>선배 N명에게 알림 갔어요</b>. 무응답 불안 해소. 답변 보장 UX</div></div>
+    <div class="anno-item"><div class="anno-num">2</div><div class="anno-text"><b>학년 뱃지 정렬</b><br>4학년 > 익명 순서로 신뢰도 정렬</div></div>
+    <div class="anno-item"><div class="anno-num">3</div><div class="anno-text"><b>이모지 피커</b><br>5개 카테고리 × 7개 이모지 — 뛰어놀 수 있는 반응 공간</div></div>
+  </div>
+</div>
+
+<!-- 05 답변 완료 + 보상 -->
+<div class="col">
+  <div class="col-label">05 답변 완료 + 보상</div>
+  <div class="phone">
+    <div class="statusbar"><div class="statusbar-pill"></div></div>
+    <div class="pnav">
+      <span class="pnav-title">활동 내역</span>
+    </div>
+    <div class="pbody">
+      <div class="noti">내 질문에 <b>새 답변</b>이 달렸어요!<br>형광 프린트 vs 리소</div>
+      <div class="reward-box">
+        <div class="reward-num">+15</div>
+        <div class="reward-lbl">답변 기여 포인트 · 이번 주</div>
+      </div>
+      <div class="sect-title">내 활동 뱃지</div>
+      <div class="badge-card">
+        <div class="badge-ico"></div>
+        <div>
+          <div class="badge-name">재료 정보 기여자</div>
+          <div class="badge-sub">재료·도구 카테고리 답변 5회 달성</div>
+        </div>
+      </div>
+      <div class="badge-card">
+        <div class="badge-ico lock"></div>
+        <div>
+          <div class="badge-name lock">공모전 멘토 · 잠금</div>
+          <div class="badge-sub lock">공모전 카테고리 답변 10회 필요</div>
+        </div>
+      </div>
+      <div class="sect-title">이번 주 인기 답변자</div>
+      <div class="card" style="padding:8px;">
+        <div class="rank-row">
+          <div class="avatar"></div>
+          <span style="font-size:10px;color:#1A1A1A;">시각디자인 4학년</span>
+          <span class="rank-score">🔥×42</span>
+        </div>
+        <div class="rank-row">
+          <div class="avatar"></div>
+          <span style="font-size:10px;color:#1A1A1A;">시각디자인 3학년</span>
+          <span class="rank-score">🙏×28</span>
+        </div>
+      </div>
+    </div>
+    <div class="botnav">
+      <div class="boticon"></div>
+      <div class="boticon"></div>
+      <div class="boticon"></div>
+      <div class="boticon on"></div>
+    </div>
+    <div class="homeind"><div class="homeind-bar"></div></div>
+  </div>
+  <div class="anno">
+    <div class="anno-title">설계 포인트</div>
+    <div class="anno-item"><div class="anno-num">1</div><div class="anno-text"><b>새 답변 알림</b><br>재방문 핵심 동기 (P1·P6·P8)</div></div>
+    <div class="anno-item"><div class="anno-num">2</div><div class="anno-text"><b>기여 포인트</b><br>답변 시 누적. 올리브영 리뷰 포인트 방식</div></div>
+    <div class="anno-item"><div class="anno-num">3</div><div class="anno-text"><b>달성형 뱃지</b><br>잠긴 뱃지로 다음 목표 제시. 공급자 인센티브</div></div>
+    <div class="anno-item"><div class="anno-num">4</div><div class="anno-text"><b>인기 답변자 랭킹</b><br>P6 <b>둘 다의 이점</b> 요구 구현</div></div>
+  </div>
+</div>
+
+</div>
+<div style="position:fixed;bottom:20px;right:24px;text-align:right;pointer-events:none;">
+  <div style="font-size:13px;font-weight:600;color:#1A1A1A;margin-bottom:2px;">FreeMajor 와이어프레임 — 화면 5개</div>
+  <div style="font-size:11px;color:#888;">전공 질문을 망설이는 대학생을 위한 익명 정보 공유 서비스 · 2026</div>
+</div>
+</body>
+</html>
